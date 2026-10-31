@@ -1,3 +1,4 @@
+// Screen transitions
 const screens = document.querySelectorAll('.screen');
 
 const startScreen = document.getElementById('start-screen');
@@ -12,6 +13,21 @@ function showScreen(screenToShow) {
   });
   screenToShow.hidden = false;
 }
+
+
+class Game {
+  constructor() {
+    this.currentQuestion = null;
+    this.currentStage = 1;
+    this.remainingTime = 25;
+    this.gameStatus = "waiting";
+    this.selectedAnswer = "";
+    this.timerId = null;
+  }
+}
+
+const game = new Game();
+
 
 startButton.addEventListener('click', () => {
   showScreen(gameScreen);
