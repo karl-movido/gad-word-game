@@ -7,6 +7,9 @@ const resultScreen = document.getElementById('result-screen');
 
 const startButton = document.getElementById('start-button');
 
+const timerText = document.getElementById('timer-display');
+const timerBar = document.getElementById('timer-progress-bar');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -38,11 +41,11 @@ class Game {
 
   startTimer() {
     clearInterval(this.timerId);
+    this.updateTimerDisplay();
 
     this.timerId = setInterval(() => {
       this.remainingTime -= 1;
-
-      console.log(this.remainingTime);
+      this.updateTimerDisplay();
 
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
@@ -61,6 +64,11 @@ class Game {
     this.currentStage += 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.startTimer();
+  }
+
+  updateTimerDisplay() {
+    timerText.textContent = this.remainingTime;
+    timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage -1]) * 100 + "%";
   }
 }
 

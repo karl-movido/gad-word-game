@@ -42,6 +42,8 @@ body {
 
 #timer-progress-bar {
   height: 100%;
+  background-color: beige;
+  transition: width 1s linear;
 }
 
 /* Picture area: 2 x 2 grid*/
