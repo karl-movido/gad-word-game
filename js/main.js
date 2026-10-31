@@ -14,11 +14,13 @@ function showScreen(screenToShow) {
   screenToShow.hidden = false;
 }
 
+const STAGE_TIMES = [25, 20, 15, 10];
+
 class Game {
   constructor() {
     this.currentQuestion = null;
     this.currentStage = 1;
-    this.remainingTime = 25;
+    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.gameStatus = "waiting";
     this.selectedAnswer = "";
     this.timerId = null;
@@ -26,7 +28,7 @@ class Game {
 
   start() {
     this.currentStage = 1;
-    this.remainingTime = 25;
+    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.selectedAnswer = "";
     this.gameStatus = "playing";
 
@@ -44,8 +46,21 @@ class Game {
 
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
+        this.nextStage();
       }
     }, 1000);
+  }
+
+  nextStage() {
+    if (this.currentStage === STAGE_TIMES.length) {
+      this.gameStatus = "done";
+      showScreen(resultScreen);
+      return;
+    }
+
+    this.currentStage += 1;
+    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
+    this.startTimer();
   }
 }
 
