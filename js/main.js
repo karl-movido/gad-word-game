@@ -19,9 +19,19 @@ function showScreen(screenToShow) {
 
 const STAGE_TIMES = [25, 20, 15, 10];
 
+const QUESTIONS = [
+  { answer: "EQUALITY", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "RESPECT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "CONSENT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "EMPOWER",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "SAFETY",   images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "SUPPORT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] }
+];
+
 class Game {
   constructor() {
     this.currentQuestion = null;
+    this.remainingQuestions = [];
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.gameStatus = "waiting";
@@ -36,7 +46,10 @@ class Game {
     this.gameStatus = "playing";
 
     showScreen(gameScreen);
+    this.currentQuestion = this.pickQuestion();
     this.startTimer();
+
+    console.log(this.currentQuestion.answer, this.remainingQuestions.length);
   }
 
   startTimer() {
@@ -69,6 +82,16 @@ class Game {
   updateTimerDisplay() {
     timerText.textContent = this.remainingTime;
     timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage -1]) * 100 + "%";
+  }
+
+  pickQuestion() {
+    if (this.remainingQuestions.length <= 0) {
+      this.remainingQuestions = [...QUESTIONS];
+    }
+  
+    let index = Math.floor(Math.random() * this.remainingQuestions.length);
+
+    return this.remainingQuestions.splice(index, 1)[0];
   }
 }
 
