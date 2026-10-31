@@ -7,6 +7,8 @@ const resultScreen = document.getElementById('result-screen');
 
 const startButton = document.getElementById('start-button');
 
+const submitButton = document.getElementById('submit-button');
+
 const timerText = document.getElementById('timer-display');
 const timerBar = document.getElementById('timer-progress-bar');
 
@@ -25,11 +27,11 @@ const STAGE_TIMES = [25, 20, 15, 10];
 
 const QUESTIONS = [
   { answer: "EQUALITY", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "RESPECT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "CONSENT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "EMPOWER",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "SAFETY",   images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "SUPPORT",  images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] }
+  { answer: "RESPECT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "CONSENT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "EMPOWER", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "SAFETY", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
+  { answer: "SUPPORT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] }
 ];
 
 class Game {
@@ -39,14 +41,14 @@ class Game {
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.gameStatus = "waiting";
-    this.selectedAnswer = "";
+    this.currentGuess = "";
     this.timerId = null;
   }
 
   start() {
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
-    this.selectedAnswer = "";
+    this.currentGuess = "";
     this.gameStatus = "playing";
 
     showScreen(gameScreen);
@@ -86,14 +88,14 @@ class Game {
 
   updateTimerDisplay() {
     timerText.textContent = this.remainingTime;
-    timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage -1]) * 100 + "%";
+    timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage - 1]) * 100 + "%";
   }
 
   pickQuestion() {
     if (this.remainingQuestions.length <= 0) {
       this.remainingQuestions = [...QUESTIONS];
     }
-  
+
     let index = Math.floor(Math.random() * this.remainingQuestions.length);
 
     return this.remainingQuestions.splice(index, 1)[0];
@@ -120,6 +122,13 @@ class Game {
 
     answerSlots.innerHTML = slots.join("");
   }
+
+  updateAnswerSlots() {
+    const slots = document.querySelectorAll('.answer-slot');
+    slots.forEach((slot, index) => {
+      slot.textContent = this.currentGuess[index] || "";
+    })
+  }
 }
 
 const game = new Game();
@@ -127,3 +136,29 @@ const game = new Game();
 startButton.addEventListener('click', () => {
   game.start();
 });
+
+document.addEventListener('keydown', handleKeyPress);
+
+function handleKeyPress(event) {
+  if (game.gameStatus !== "playing") {
+    return;
+  }
+
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
+
+  if (/^[a-z]$/i.test(event.key)) {
+    if (game.currentGuess.length < game.currentQuestion.answer.length) {
+      game.currentGuess += event.key.toUpperCase();
+      game.updateAnswerSlots();
+    }
+    return;
+  }
+
+  if (event.key === "Backspace") {
+    game.currentGuess = game.currentGuess.slice(0, -1);
+    game.updateAnswerSlots();
+    return;
+  }
+}
