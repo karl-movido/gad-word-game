@@ -58,6 +58,7 @@ body {
   display: block;
   width: 100%;
   height: auto;
+  border: 1px solid black;
 }
 
 /* Answer area: a row of slots*/

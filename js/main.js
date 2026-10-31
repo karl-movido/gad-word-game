@@ -10,6 +10,8 @@ const startButton = document.getElementById('start-button');
 const timerText = document.getElementById('timer-display');
 const timerBar = document.getElementById('timer-progress-bar');
 
+const picturesCont = document.getElementById('picture-container');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -47,6 +49,7 @@ class Game {
 
     showScreen(gameScreen);
     this.currentQuestion = this.pickQuestion();
+    this.updatePictures();
     this.startTimer();
 
     console.log(this.currentQuestion.answer, this.remainingQuestions.length);
@@ -75,6 +78,7 @@ class Game {
     }
 
     this.currentStage += 1;
+    this.updatePictures();
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.startTimer();
   }
@@ -92,6 +96,20 @@ class Game {
     let index = Math.floor(Math.random() * this.remainingQuestions.length);
 
     return this.remainingQuestions.splice(index, 1)[0];
+  }
+
+  updatePictures() {
+    picturesCont.innerHTML = '';
+
+    const visiblePictures = this.currentQuestion.images.slice(0, this.currentStage);
+
+    visiblePictures.forEach((picture) => {
+      const div = document.createElement("div");
+      div.textContent = picture;
+      div.className = 'picture-item';
+
+      picturesCont.appendChild(div);
+    });
   }
 }
 
