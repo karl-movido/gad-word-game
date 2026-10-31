@@ -12,6 +12,8 @@ const timerBar = document.getElementById('timer-progress-bar');
 
 const picturesCont = document.getElementById('picture-container');
 
+const answerSlots = document.getElementById('answer-slots');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -49,10 +51,9 @@ class Game {
 
     showScreen(gameScreen);
     this.currentQuestion = this.pickQuestion();
+    this.buildAnswerSlots();
     this.updatePictures();
     this.startTimer();
-
-    console.log(this.currentQuestion.answer, this.remainingQuestions.length);
   }
 
   startTimer() {
@@ -110,6 +111,14 @@ class Game {
 
       picturesCont.appendChild(div);
     });
+  }
+
+  buildAnswerSlots() {
+    const slots = this.currentQuestion.answer.split("").map(() => {
+      return `<div class="answer-slot"></div>`
+    });
+
+    answerSlots.innerHTML = slots.join("");
   }
 }
 
