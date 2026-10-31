@@ -1,0 +1,89 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 16px;
+}
+
+#game-app {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Makes the "hidden" attribute work even on elements that use display: flex */
+[hidden] {
+  display: none;
+}
+
+/* Game header: question number on the left, timer on the right */
+#game-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+#game-header p {
+  margin: 0;
+}
+
+/* Progress bar*/
+#timer-progress-container {
+  height: 16px;
+  border: 1px solid black;
+}
+
+#timer-progress-bar {
+  height: 100%;
+}
+
+/* Picture area: 2 x 2 grid*/
+#picture-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  min-height: 100px;
+}
+
+.picture-item {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Answer area: a row of slots*/
+#answer-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.answer-slot {
+  width: 40px;
+  height: 48px;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Input area */
+#input-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+#answer-input {
+  flex: 1;
+  min-width: 120px;
+}

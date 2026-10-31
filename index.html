@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GAD Word Quest</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <main id="game-app">
+
+    <section id="start-screen" class="screen">
+      <h1 id="game-title">GAD Word Quest</h1>
+      <p id="game-instructions">
+        Look at the pictures, guess the word they have in common,
+        and type your answer before time runs out.
+      </p>
+      <button type="button" id="start-button">Start Game</button>
+    </section>
+
+    <section id="game-screen" class="screen" hidden>
+
+      <header id="game-header">
+        <p id="question-info">Question: <span id="question-number"></span></p>
+        <p id="timer-info">Time: <span id="timer-display"></span></p>
+      </header>
+
+      <div id="timer-progress-container">
+        <div id="timer-progress-bar"></div>
+      </div>
+
+      <div id="picture-container"></div>
+
+      <div id="answer-slots"></div>
+
+      <div id="input-area">
+        <label for="answer-input">Type your answer:</label>
+        <input type="text" id="answer-input" autocomplete="off">
+        <button type="button" id="submit-button">Submit</button>
+      </div>
+
+      <p id="feedback-message" aria-live="polite"></p>
+
+    </section>
+
+    <section id="result-screen" class="screen" hidden>
+      <h2 id="result-message"></h2>
+      <p>Correct answer: <span id="result-answer"></span></p>
+      <p>Prize tier: <span id="result-prize"></span></p>
+      <button type="button" id="play-again-button">Play Again</button>
+    </section>
+
+  </main>
+</body>
+
+</html>
