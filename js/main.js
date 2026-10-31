@@ -14,7 +14,6 @@ function showScreen(screenToShow) {
   screenToShow.hidden = false;
 }
 
-
 class Game {
   constructor() {
     this.currentQuestion = null;
@@ -24,11 +23,34 @@ class Game {
     this.selectedAnswer = "";
     this.timerId = null;
   }
+
+  start() {
+    this.currentStage = 1;
+    this.remainingTime = 25;
+    this.selectedAnswer = "";
+    this.gameStatus = "playing";
+
+    showScreen(gameScreen);
+    this.startTimer();
+  }
+
+  startTimer() {
+    clearInterval(this.timerId);
+
+    this.timerId = setInterval(() => {
+      this.remainingTime -= 1;
+
+      console.log(this.remainingTime);
+
+      if (this.remainingTime <= 0) {
+        clearInterval(this.timerId);
+      }
+    }, 1000);
+  }
 }
 
 const game = new Game();
 
-
 startButton.addEventListener('click', () => {
-  showScreen(gameScreen);
-})
+  game.start();
+});
