@@ -19,6 +19,15 @@ const answerSlots = document.getElementById('answer-slots');
 const feedbackHeader = document.getElementById('feedback-header');
 const feedbackDesc = document.getElementById('feedback-description');
 
+const modalTimer = document.getElementById('modal-timer-container');
+const modalCountdown = document.getElementById('modal-countdown-number');
+const modalButton = document.getElementById('modal-button');
+
+const modalTitle = document.getElementById('modal-title');
+const modalMsg = document.getElementById('modal-message');
+
+const modalOverlay = document.getElementById('modal-overlay');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -43,6 +52,28 @@ const FEEDBACKS = {
   incomplete: ["Almost there!", "Fill in all the letters before submitting."],
 };
 
+const MODALS = {
+  nextRound: {
+    title: "Time's up!",
+    desc: "Get ready for the next round",
+    hasCountdown: true,
+    countdown: 3,
+    buttonText: null
+  },
+  victory: {
+    title: "Correct!",
+    desc: "Great job! You guessed the word",
+    hasCountdown: false,
+    buttonText: "View results"
+  },
+  gameOver: {
+    title: "Game Over",
+    desc: "You ran out of chances. Better luck next time!",
+    hasCountdown: false,
+    buttonText: "View Results"
+  }
+};
+
 class Game {
   constructor() {
     this.currentQuestion = null;
@@ -53,6 +84,7 @@ class Game {
     this.currentGuess = "";
     this.timerId = null;
     this.timeoutId = null;
+    this.modalTimerId = null;
   }
 
   start() {
@@ -61,6 +93,7 @@ class Game {
     this.currentGuess = "";
     this.gameStatus = "playing";
 
+    this.hideModal();
     showScreen(gameScreen);
     this.clearFeedback();
     this.currentQuestion = this.pickQuestion();
@@ -74,23 +107,24 @@ class Game {
     this.updateTimerDisplay();
 
     this.timerId = setInterval(() => {
-      this.remainingTime -= 1;
+      this.remainingTime--;
       this.updateTimerDisplay();
 
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
-        this.nextStage();
+
+        if (this.currentStage === STAGE_TIMES.length) {
+          this.gameStatus = "lost"; 
+          this.showModal("gameOver");
+        } else {
+          this.gameStatus = "transition";
+          this.showModal("nextRound");
+        }
       }
     }, 1000);
   }
 
   nextStage() {
-    if (this.currentStage === STAGE_TIMES.length) {
-      this.gameStatus = "done";
-      showScreen(resultScreen);
-      return;
-    }
-
     this.currentStage += 1;
     this.updatePictures();
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
@@ -157,7 +191,7 @@ class Game {
     if (this.currentGuess === this.currentQuestion.answer) {
       clearInterval(this.timerId);
       this.gameStatus = "won";
-      showScreen(resultScreen);
+      this.showModal("victory");
     } else {
       this.showFeedback("incorrect");
       return;
@@ -169,7 +203,7 @@ class Game {
 
     feedbackHeader.textContent = header;
     feedbackDesc.textContent = desc;
-    
+
     clearTimeout(this.timeoutId);
 
     this.timeoutId = setTimeout(() => {
@@ -182,6 +216,52 @@ class Game {
     feedbackHeader.textContent = "";
     feedbackDesc.textContent = "";
   }
+
+  showModal(type) {
+
+    const config = MODALS[type];
+
+    if (!config) {
+      return;
+    }
+
+    modalOverlay.hidden = false;
+
+    const title = config.title;
+    const desc = config.desc;
+
+    modalTitle.textContent = title;
+    modalMsg.textContent = desc;
+
+    modalTimer.hidden = !config.hasCountdown;
+    modalButton.hidden = !config.buttonText;
+
+    if (config.hasCountdown) {
+      let remaining = config.countdown;
+      modalCountdown.textContent = remaining;
+
+      clearInterval(this.modalTimerId);
+
+      this.modalTimerId = setInterval(() => {
+        remaining--;
+        modalCountdown.textContent = remaining;
+
+        if (remaining <= 0) {
+          clearInterval(this.modalTimerId);
+          this.gameStatus = "playing";
+          this.hideModal();
+          this.nextStage();
+        }
+      }, 1000);
+    }
+
+    modalButton.textContent = config.buttonText;
+  }
+
+  hideModal() {
+    modalOverlay.hidden = true;
+    clearInterval(this.modalTimerId);
+  }
 }
 
 const game = new Game();
@@ -192,6 +272,11 @@ startButton.addEventListener('click', () => {
 
 submitButton.addEventListener('click', () => {
   game.checkAnswer();
+});
+
+modalButton.addEventListener('click', () => {
+  game.hideModal();
+  showScreen(resultScreen);
 });
 
 document.addEventListener('keydown', handleKeyPress);

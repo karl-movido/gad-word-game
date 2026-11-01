@@ -52,6 +52,22 @@
     </section>
 
   </main>
+
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog">
+      <h2 id="modal-title">Timer Expired!</h2>
+      <p id="modal-message">Good luck on the next round!</p>
+      <div id="modal-timer-container" class="timer-container" hidden>
+        <span class="timer-title">Next round starts in</span>
+        <div class="timer-box">
+          <span id="modal-countdown-number">3</span>
+        </div>
+      </div>
+      <button id="modal-button" hidden>Continue</button>
+    </div>
+  </div>
+
+
   <script src="js/main.js" defer></script>
 </body>
 
