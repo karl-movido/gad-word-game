@@ -78,15 +78,25 @@ body {
   justify-content: center;
 }
 
-/* Input area */
-#input-area {
+/* Feedback message */
+#feedback-message {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  min-height: 80px;
+  margin: 8px 0;
 }
 
-#answer-input {
-  flex: 1;
-  min-width: 120px;
+#feedback-header {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#feedback-description {
+  font-size: 14px;
+  color: #666;
+  max-width: 100%;
 }

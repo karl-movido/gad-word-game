@@ -16,6 +16,9 @@ const picturesCont = document.getElementById('picture-container');
 
 const answerSlots = document.getElementById('answer-slots');
 
+const feedbackHeader = document.getElementById('feedback-header');
+const feedbackDesc = document.getElementById('feedback-description');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -34,6 +37,12 @@ const QUESTIONS = [
   { answer: "SUPPORT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] }
 ];
 
+const FEEDBACKS = {
+  empty: ["Oops!", "You haven't entered an answer yet. Type something before submitting!"],
+  incorrect: ["Not quite!", "That's not the right word. Try again!"],
+  incomplete: ["Almost there!", "Fill in all the letters before submitting."],
+};
+
 class Game {
   constructor() {
     this.currentQuestion = null;
@@ -43,6 +52,7 @@ class Game {
     this.gameStatus = "waiting";
     this.currentGuess = "";
     this.timerId = null;
+    this.timeoutId = null;
   }
 
   start() {
@@ -52,6 +62,7 @@ class Game {
     this.gameStatus = "playing";
 
     showScreen(gameScreen);
+    this.clearFeedback();
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
     this.updatePictures();
@@ -129,12 +140,58 @@ class Game {
       slot.textContent = this.currentGuess[index] || "";
     })
   }
+
+  checkAnswer() {
+    if (this.gameStatus !== "playing") return;
+
+    if (this.currentGuess.length <= 0) {
+      this.showFeedback("empty");
+      return;
+    }
+
+    if (this.currentGuess.length < this.currentQuestion.answer.length) {
+      this.showFeedback("incomplete");
+      return;
+    }
+
+    if (this.currentGuess === this.currentQuestion.answer) {
+      clearInterval(this.timerId);
+      this.gameStatus = "won";
+      showScreen(resultScreen);
+    } else {
+      this.showFeedback("incorrect");
+      return;
+    }
+  }
+
+  showFeedback(state) {
+    const [header, desc] = FEEDBACKS[state] || ["", ""];
+
+    feedbackHeader.textContent = header;
+    feedbackDesc.textContent = desc;
+    
+    clearTimeout(this.timeoutId);
+
+    this.timeoutId = setTimeout(() => {
+      feedbackHeader.textContent = "";
+      feedbackDesc.textContent = "";
+    }, 3000);
+  }
+
+  clearFeedback() {
+    feedbackHeader.textContent = "";
+    feedbackDesc.textContent = "";
+  }
 }
 
 const game = new Game();
 
 startButton.addEventListener('click', () => {
   game.start();
+});
+
+submitButton.addEventListener('click', () => {
+  game.checkAnswer();
 });
 
 document.addEventListener('keydown', handleKeyPress);
@@ -160,5 +217,9 @@ function handleKeyPress(event) {
     game.currentGuess = game.currentGuess.slice(0, -1);
     game.updateAnswerSlots();
     return;
+  }
+
+  if (event.key === "Enter") {
+    game.checkAnswer();
   }
 }
