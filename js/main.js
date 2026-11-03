@@ -45,7 +45,7 @@ function showScreen(screenToShow) {
   screenToShow.hidden = false;
 }
 
-const STAGE_TIMES = [10, 10, 5, 5];
+const STAGE_TIMES = [25, 20, 15, 10];
 
 const QUESTIONS = [
   {
@@ -94,6 +94,7 @@ const MODALS = {
 };
 
 const PRIZES = ["Prize A", "Prize B", "Prize C", "Prize D"];
+const LOSS_PRIZE = null;
 
 const RESULTS = {
   won: {
@@ -129,6 +130,8 @@ class Game {
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.currentGuess = "";
     this.gameStatus = "playing";
+    this.totalAttempts = 0;
+    this.wrongGuesses = 0;
 
     this.hideModal();
     showScreen(gameScreen);
@@ -151,8 +154,7 @@ class Game {
         clearInterval(this.timerId);
 
         if (this.currentStage === STAGE_TIMES.length) {
-          this.gameStatus = "lost";
-          this.showResult('gameOver');
+          this.gameStatus = "gameOver";
           this.showModal("gameOver");
         } else {
           this.gameStatus = "transition";
@@ -222,7 +224,7 @@ class Game {
   checkAnswer() {
     if (this.gameStatus !== "playing") return;
 
-    this.totalAttempts++;
+
 
     if (this.currentGuess.length <= 0) {
       this.showFeedback("empty");
@@ -233,6 +235,8 @@ class Game {
       this.showFeedback("incomplete");
       return;
     }
+
+    this.totalAttempts++;
 
     if (this.currentGuess === this.currentQuestion.answer) {
       clearInterval(this.timerId);
@@ -318,10 +322,14 @@ class Game {
     if (!result) return;
 
     resultTitle.textContent = result.title;
-    resultDesc.textContent = result.desc;
+    resultDesc.textContent = result.description;
 
+    const prize = state === 'won' ? PRIZES[this.currentStage - 1] : LOSS_PRIZE;
+
+    prizeLabel.hidden = !prize;
+    resultPrize.hidden = !prize;
     prizeLabel.textContent = result.prizeLabel;
-    resultPrize.textContent = PRIZES[this.currentStage - 1];
+    resultPrize.textContent = prize;
     resultStage.textContent = `Round ${this.currentStage}`;
 
     resultAttempts.textContent = this.totalAttempts;
