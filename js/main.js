@@ -9,6 +9,8 @@ const startButton = document.getElementById('start-button');
 
 const submitButton = document.getElementById('submit-button');
 
+const playAgainButton = document.getElementById('play-again-button');
+
 const timerText = document.getElementById('timer-display');
 const timerBar = document.getElementById('timer-progress-bar');
 
@@ -28,6 +30,14 @@ const modalMsg = document.getElementById('modal-message');
 
 const modalOverlay = document.getElementById('modal-overlay');
 
+const prizeLabel = document.getElementById('prize-label');
+const resultPrize = document.getElementById('result-prize');
+const resultStage = document.getElementById('result-stage');
+const resultAttempts = document.getElementById('result-attempts');
+const resultMistakes = document.getElementById('result-mistakes');
+const resultTitle = document.getElementById('result-title');
+const resultDesc = document.getElementById('result-description');
+
 function showScreen(screenToShow) {
   screens.forEach((screen) => {
     screen.hidden = true;
@@ -35,15 +45,24 @@ function showScreen(screenToShow) {
   screenToShow.hidden = false;
 }
 
-const STAGE_TIMES = [25, 20, 15, 10];
+const STAGE_TIMES = [10, 10, 5, 5];
 
 const QUESTIONS = [
-  { answer: "EQUALITY", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "RESPECT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "CONSENT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "EMPOWER", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "SAFETY", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] },
-  { answer: "SUPPORT", images: ["Picture 1", "Picture 2", "Picture 3", "Picture 4"] }
+  {
+    id: "vawc",
+    answer: "VAWC",
+    hint: "A shielf for the vulnerable"
+  },
+  {
+    id: "equality",
+    answer: "EQUALITY",
+    hint: "Same measure"
+  },
+  {
+    id: "harassment",
+    answer: "HARASSMENT",
+    hint: "Unwelcome behavior"
+  }
 ];
 
 const FEEDBACKS = {
@@ -74,6 +93,22 @@ const MODALS = {
   }
 };
 
+const PRIZES = ["Prize A", "Prize B", "Prize C", "Prize D"];
+
+const RESULTS = {
+  won: {
+    title: "Congratulations!",
+    description: "You've successfully guessed the word! Great job!",
+    prizeLabel: "Your Reward",
+  },
+
+  gameOver: {
+    title: "Better Luck Next Time!",
+    description: "You weren't able to guess the word this time. Don't give up!",
+    prizeLabel: "Game Result",
+  }
+};
+
 class Game {
   constructor() {
     this.currentQuestion = null;
@@ -85,6 +120,8 @@ class Game {
     this.timerId = null;
     this.timeoutId = null;
     this.modalTimerId = null;
+    this.wrongGuesses = 0;
+    this.totalAttempts = 0;
   }
 
   start() {
@@ -114,7 +151,8 @@ class Game {
         clearInterval(this.timerId);
 
         if (this.currentStage === STAGE_TIMES.length) {
-          this.gameStatus = "lost"; 
+          this.gameStatus = "lost";
+          this.showResult('gameOver');
           this.showModal("gameOver");
         } else {
           this.gameStatus = "transition";
@@ -149,15 +187,21 @@ class Game {
   updatePictures() {
     picturesCont.innerHTML = '';
 
-    const visiblePictures = this.currentQuestion.images.slice(0, this.currentStage);
+    picturesCont.className = `stage-${this.currentStage}`;
 
-    visiblePictures.forEach((picture) => {
-      const div = document.createElement("div");
-      div.textContent = picture;
+    for (let i = 1; i <= this.currentStage; i++) {
+      let filePath = `assets/images/${this.currentQuestion.id}_${i}.jpg`;
+
+      const div = document.createElement('div');
       div.className = 'picture-item';
 
+      const img = document.createElement('img');
+      img.setAttribute('src', filePath);
+
+      div.appendChild(img);
+
       picturesCont.appendChild(div);
-    });
+    }
   }
 
   buildAnswerSlots() {
@@ -178,6 +222,8 @@ class Game {
   checkAnswer() {
     if (this.gameStatus !== "playing") return;
 
+    this.totalAttempts++;
+
     if (this.currentGuess.length <= 0) {
       this.showFeedback("empty");
       return;
@@ -192,10 +238,14 @@ class Game {
       clearInterval(this.timerId);
       this.gameStatus = "won";
       this.showModal("victory");
+
     } else {
       this.showFeedback("incorrect");
+      this.wrongGuesses++;
       return;
     }
+
+
   }
 
   showFeedback(state) {
@@ -254,13 +304,28 @@ class Game {
         }
       }, 1000);
     }
-
     modalButton.textContent = config.buttonText;
   }
 
   hideModal() {
     modalOverlay.hidden = true;
     clearInterval(this.modalTimerId);
+  }
+
+  showResult(state) {
+    const result = RESULTS[state];
+
+    if (!result) return;
+
+    resultTitle.textContent = result.title;
+    resultDesc.textContent = result.desc;
+
+    prizeLabel.textContent = result.prizeLabel;
+    resultPrize.textContent = PRIZES[this.currentStage - 1];
+    resultStage.textContent = `Round ${this.currentStage}`;
+
+    resultAttempts.textContent = this.totalAttempts;
+    resultMistakes.textContent = this.wrongGuesses;
   }
 }
 
@@ -276,7 +341,12 @@ submitButton.addEventListener('click', () => {
 
 modalButton.addEventListener('click', () => {
   game.hideModal();
+  game.showResult(game.gameStatus);
   showScreen(resultScreen);
+});
+
+playAgainButton.addEventListener('click', () => {
+  game.start();
 });
 
 document.addEventListener('keydown', handleKeyPress);

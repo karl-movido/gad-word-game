@@ -45,9 +45,33 @@
     </section>
 
     <section id="result-screen" class="screen" hidden>
-      <h2 id="result-message"></h2>
-      <p>Correct answer: <span id="result-answer"></span></p>
-      <p>Prize tier: <span id="result-prize"></span></p>
+      <div class="result-header">
+        <div class="result-icon">
+          <!-- Insert image or icon -->
+        </div>
+
+        <h2 id="result-title"></h2>
+        <p id="result-description"></p>
+      </div>
+
+      <div class="prize-card">
+        <p id="prize-label"></p>
+        <h3 id="result-prize"></h3>
+        <span id="result-stage"></span>
+      </div>
+
+      <div class="result-stats">
+        <div class="stat-item">
+          <span class="stat-label">Total Attempts</span>
+          <strong id="result-attempts"></strong>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-label">Incorrect Guesses</span>
+          <strong id="result-mistakes"></strong>
+        </div>
+      </div>
+
       <button type="button" id="play-again-button">Play Again</button>
     </section>
 

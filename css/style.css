@@ -48,23 +48,48 @@ body {
 
 /* Picture area: 2 x 2 grid*/
 #picture-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  min-height: 100px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+
+  margin: 0 auto;
 }
 
 .picture-item {
   display: block;
-  width: 100%;
-  height: auto;
   border: 1px solid black;
+}
+
+.picture-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stage-1 .picture-item {
+  width: 100%;
+  height: 100%;
+}
+
+
+.stage-2 .picture-item,
+.stage-3 .picture-item,
+.stage-4 .picture-item {
+  width: calc(50% - 5px);
+  height: calc(50% - 5px);
 }
 
 /* Answer area: a row of slots*/
 #answer-slots {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
   min-height: 48px;
 }
@@ -123,4 +148,101 @@ body {
   width: 90%;
   max-width: 400px;
   text-align: center;
+}
+
+.result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-icon {
+  width: 80px;
+  height: 80px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+}
+
+.result-header h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.result-header p {
+  color: #777;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.prize-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #92752d;
+}
+
+.prize-card h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #8b6b1d;
+}
+
+#result-stage {
+  font-size: 0.85rem;
+  color: #92752d;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.stat-item {
+  padding: 18px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.stat-item strong {
+  font-size: 1.6rem;
+}
+
+#play-again-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #292929;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#play-again-button:hover {
+  background: #444;
+  transform: translateY(-2px);
+}
+
+#play-again-button:active {
+  transform: translateY(0);
 }
