@@ -1,5 +1,13 @@
 const STAGE_TIMES = [25, 20, 15, 10];
 
+const STATUS = {
+  WAITING: "waiting",
+  PLAYING: "playing",
+  TRANSITION: "transition",
+  WON: "won",
+  GAME_OVER: "gameOver"
+}
+
 const FEEDBACKS = {
   empty: ["Oops!", "You haven't entered an answer yet. Type something before submitting!"],
   incorrect: ["Not quite!", "That's not the right word. Try again!"],

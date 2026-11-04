@@ -1,25 +1,24 @@
 class Game {
   constructor() {
-    this.currentQuestion = null;
-    this.remainingQuestions = [];
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
-    this.gameStatus = "waiting";
     this.currentGuess = "";
+    this.totalAttempts = 0;
+    this.wrongGuesses = 0;
+    this.gameStatus = STATUS.WAITING;
+
+    this.remainingQuestions = [];
+    this.currentQuestion = null;
     this.timerId = null;
     this.timeoutId = null;
     this.modalTimerId = null;
-    this.wrongGuesses = 0;
-    this.totalAttempts = 0;
+
+    this.reset();
   }
 
   start() {
-    this.currentStage = 1;
-    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
-    this.currentGuess = "";
-    this.gameStatus = "playing";
-    this.totalAttempts = 0;
-    this.wrongGuesses = 0;
+    this.reset();
+    this.gameStatus = STATUS.PLAYING;
 
     this.hideModal();
     showScreen(gameScreen);
@@ -28,6 +27,15 @@ class Game {
     this.buildAnswerSlots();
     this.updatePictures();
     this.startTimer();
+  }
+
+  reset() {
+    this.currentStage = 1;
+    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
+    this.currentGuess = "";
+    this.totalAttempts = 0;
+    this.wrongGuesses = 0;
+    this.gameStatus = STATUS.WAITING;
   }
 
   startTimer() {
@@ -42,10 +50,10 @@ class Game {
         clearInterval(this.timerId);
 
         if (this.currentStage === STAGE_TIMES.length) {
-          this.gameStatus = "gameOver";
+          this.gameStatus = STATUS.GAME_OVER;
           this.showModal("gameOver");
         } else {
-          this.gameStatus = "transition";
+          this.gameStatus = STATUS.TRANSITION;
           this.showModal("nextRound");
         }
       }
@@ -110,7 +118,7 @@ class Game {
   }
 
   checkAnswer() {
-    if (this.gameStatus !== "playing") return;
+    if (this.gameStatus !== STATUS.PLAYING) return;
 
 
 
@@ -128,7 +136,7 @@ class Game {
 
     if (this.currentGuess === this.currentQuestion.answer) {
       clearInterval(this.timerId);
-      this.gameStatus = "won";
+      this.gameStatus = STATUS.WON;
       this.showModal("victory");
 
     } else {
@@ -190,7 +198,7 @@ class Game {
 
         if (remaining <= 0) {
           clearInterval(this.modalTimerId);
-          this.gameStatus = "playing";
+          this.gameStatus = STATUS.PLAYING;
           this.hideModal();
           this.nextStage();
         }
@@ -212,7 +220,7 @@ class Game {
     resultTitle.textContent = result.title;
     resultDesc.textContent = result.description;
 
-    const prize = state === 'won' ? PRIZES[this.currentStage - 1] : LOSS_PRIZE;
+    const prize = state === STATUS.WON ? PRIZES[this.currentStage - 1] : LOSS_PRIZE;
 
     prizeLabel.hidden = !prize;
     resultPrize.hidden = !prize;

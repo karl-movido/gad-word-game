@@ -24,7 +24,7 @@ playAgainButton.addEventListener('click', () => {
 document.addEventListener('keydown', handleKeyPress);
 
 function handleKeyPress(event) {
-  if (game.gameStatus !== "playing") {
+  if (game.gameStatus !== STATUS.PLAYING) {
     return;
   }
 
