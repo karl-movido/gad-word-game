@@ -26,6 +26,7 @@ class Game {
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.currentGuess = "";
+    this.slotElements = [];
     this.totalAttempts = 0;
     this.wrongGuesses = 0;
     this.gameStatus = STATUS.WAITING;
@@ -104,17 +105,26 @@ class Game {
   }
 
   buildAnswerSlots() {
-    const slots = this.currentQuestion.display.split("").map((c) => {
-      return c !== " " ? `<div class="answer-slot"></div>` : `<div class="answer-gap"></div>`
-    });
+    answerSlots.innerHTML = "";
+    this.slotElements = [];
+  
+    this.currentQuestion.display.split("").forEach((c) => {
+      const slot = document.createElement("div");
 
-    answerSlots.innerHTML = slots.join("");
+      if (c === " ") {
+        slot.className = 'answer-gap';
+      } else {
+        slot.className = 'answer-slot';
+        this.slotElements.push(slot);
+      }
+
+      answerSlots.appendChild(slot);
+    })
   }
 
   updateAnswerSlots() {
-    const slots = document.querySelectorAll('.answer-slot');
-    slots.forEach((slot, index) => {
-      slot.textContent = this.currentGuess[index] || "";
+    this.slotElements.forEach((c, i) => {
+      c.textContent = this.currentGuess[i] || "";
     })
   }
 
