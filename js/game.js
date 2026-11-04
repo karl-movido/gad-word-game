@@ -84,22 +84,21 @@ class Game {
 
   updatePictures() {
     picturesCont.innerHTML = '';
-
     picturesCont.className = `stage-${this.currentStage}`;
 
-    for (let i = 1; i <= this.currentStage; i++) {
-      let filePath = `assets/images/${this.currentQuestion.id}_${i}.jpg`;
+    const visible = this.currentQuestion.images.slice(0, this.currentStage);
 
-      const div = document.createElement('div');
+    visible.forEach((path, index) => {
+      const div = document.createElement("div");
       div.className = 'picture-item';
 
-      const img = document.createElement('img');
-      img.setAttribute('src', filePath);
+      const img = document.createElement("img");
+      img.src = `assets/images/${path}`;
+      img.alt = `Picture ${index + 1}`;
 
       div.appendChild(img);
-
       picturesCont.appendChild(div);
-    }
+    });
   }
 
   buildAnswerSlots() {
