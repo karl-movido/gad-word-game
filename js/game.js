@@ -102,8 +102,8 @@ class Game {
   }
 
   buildAnswerSlots() {
-    const slots = this.currentQuestion.answer.split("").map(() => {
-      return `<div class="answer-slot"></div>`
+    const slots = this.currentQuestion.display.split("").map((c) => {
+      return c !== " " ? `<div class="answer-slot"></div>` : `<div class="answer-gap"></div>`
     });
 
     answerSlots.innerHTML = slots.join("");
@@ -118,8 +118,6 @@ class Game {
 
   checkAnswer() {
     if (this.gameStatus !== STATUS.PLAYING) return;
-
-
 
     if (this.currentGuess.length <= 0) {
       this.showFeedback("empty");
