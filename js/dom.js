@@ -29,6 +29,9 @@ const modalMsg = document.getElementById('modal-message');
 
 const modalOverlay = document.getElementById('modal-overlay');
 
+const modalTrivia = document.getElementById('modal-trivia');
+const modalTriviaText = document.getElementById('modal-trivia-text');
+
 const prizeLabel = document.getElementById('prize-label');
 const resultPrize = document.getElementById('result-prize');
 const resultStage = document.getElementById('result-stage');

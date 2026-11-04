@@ -116,6 +116,8 @@ class Game {
     })
   }
 
+
+
   checkAnswer() {
     if (this.gameStatus !== STATUS.PLAYING) return;
 
@@ -172,6 +174,11 @@ class Game {
       return;
     }
 
+    const trivia = (this.currentQuestion.trivia || "").trim();
+    const showTrivia = config.hasTrivia && Boolean(trivia);
+    modalTrivia.hidden = !showTrivia;
+    
+
     modalOverlay.hidden = false;
 
     const title = config.title;
@@ -182,6 +189,10 @@ class Game {
 
     modalTimer.hidden = !config.hasCountdown;
     modalButton.hidden = !config.buttonText;
+
+    if (showTrivia) {
+      modalTriviaText.textContent = trivia;
+    }
 
     if (config.hasCountdown) {
       let remaining = config.countdown;
@@ -201,6 +212,7 @@ class Game {
         }
       }, 1000);
     }
+
     modalButton.textContent = config.buttonText;
   }
 

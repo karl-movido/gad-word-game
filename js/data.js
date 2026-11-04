@@ -26,6 +26,7 @@ const MODALS = {
     title: "Correct!",
     desc: "Great job! You guessed the word",
     hasCountdown: false,
+    hasTrivia: true,
     buttonText: "View results"
   },
   gameOver: {

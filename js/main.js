@@ -1,6 +1,3 @@
-// Screen transitions
-
-
 const game = new Game();
 
 startButton.addEventListener('click', () => {
