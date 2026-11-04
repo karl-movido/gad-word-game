@@ -1,17 +1,7 @@
 class Game {
   constructor() {
-    this.currentStage = 1;
-    this.remainingTime = STAGE_TIMES[this.currentStage - 1];
-    this.currentGuess = "";
-    this.totalAttempts = 0;
-    this.wrongGuesses = 0;
-    this.gameStatus = STATUS.WAITING;
-
     this.remainingQuestions = [];
     this.currentQuestion = null;
-    this.timerId = null;
-    this.timeoutId = null;
-    this.modalTimerId = null;
 
     this.reset();
   }
@@ -30,12 +20,18 @@ class Game {
   }
 
   reset() {
+    clearInterval(this.timerId);
+    clearTimeout(this.timeoutId);
+    clearInterval(this.modalTimerId);
     this.currentStage = 1;
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.currentGuess = "";
     this.totalAttempts = 0;
     this.wrongGuesses = 0;
     this.gameStatus = STATUS.WAITING;
+    this.timerId = null;
+    this.timeoutId = null;
+    this.modalTimerId = null;
   }
 
   startTimer() {
