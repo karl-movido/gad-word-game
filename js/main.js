@@ -1,4 +1,10 @@
-const game = new Game();
+import { uiElements, showScreen } from "./dom.js";
+import { Game } from "./game.js";
+import { STATUS } from "./data.js";
+
+const { startButton, submitButton, modalButton, playAgainButton, resultScreen } = uiElements;
+
+const game = new Game(uiElements);
 
 startButton.addEventListener('click', () => {
   game.start();
@@ -6,12 +12,6 @@ startButton.addEventListener('click', () => {
 
 submitButton.addEventListener('click', () => {
   game.checkAnswer();
-});
-
-modalButton.addEventListener('click', () => {
-  game.hideModal();
-  game.showResult(game.gameStatus);
-  showScreen(resultScreen);
 });
 
 playAgainButton.addEventListener('click', () => {

@@ -1,47 +1,36 @@
-const screens = document.querySelectorAll('.screen');
+export const uiElements = {
+  screens: document.querySelectorAll('.screen'),
+  startScreen: document.getElementById('start-screen'),
+  gameScreen: document.getElementById('game-screen'),
+  resultScreen: document.getElementById('result-screen'),
+  startButton: document.getElementById('start-button'),
+  submitButton: document.getElementById('submit-button'),
+  playAgainButton: document.getElementById('play-again-button'),
+  timerText: document.getElementById('timer-display'),
+  timerBar: document.getElementById('timer-progress-bar'),
+  picturesCont: document.getElementById('picture-container'),
+  answerSlots: document.getElementById('answer-slots'),
+  feedbackHeader: document.getElementById('feedback-header'),
+  feedbackDesc: document.getElementById('feedback-description'),
+  modalTimer: document.getElementById('modal-timer-container'),
+  modalCountdown: document.getElementById('modal-countdown-number'),
+  modalButton: document.getElementById('modal-button'),
+  modalTitle: document.getElementById('modal-title'),
+  modalMsg: document.getElementById('modal-message'),
+  modalOverlay: document.getElementById('modal-overlay'),
+  modalTrivia: document.getElementById('modal-trivia'),
+  modalTriviaText: document.getElementById('modal-trivia-text'),
+  prizeLabel: document.getElementById('prize-label'),
+  resultPrize: document.getElementById('result-prize'),
+  resultStage: document.getElementById('result-stage'),
+  resultAttempts: document.getElementById('result-attempts'),
+  resultMistakes: document.getElementById('result-mistakes'),
+  resultTitle: document.getElementById('result-title'),
+  resultDesc: document.getElementById('result-description'),
+};
 
-const startScreen = document.getElementById('start-screen');
-const gameScreen = document.getElementById('game-screen');
-const resultScreen = document.getElementById('result-screen');
-
-const startButton = document.getElementById('start-button');
-
-const submitButton = document.getElementById('submit-button');
-
-const playAgainButton = document.getElementById('play-again-button');
-
-const timerText = document.getElementById('timer-display');
-const timerBar = document.getElementById('timer-progress-bar');
-
-const picturesCont = document.getElementById('picture-container');
-
-const answerSlots = document.getElementById('answer-slots');
-
-const feedbackHeader = document.getElementById('feedback-header');
-const feedbackDesc = document.getElementById('feedback-description');
-
-const modalTimer = document.getElementById('modal-timer-container');
-const modalCountdown = document.getElementById('modal-countdown-number');
-const modalButton = document.getElementById('modal-button');
-
-const modalTitle = document.getElementById('modal-title');
-const modalMsg = document.getElementById('modal-message');
-
-const modalOverlay = document.getElementById('modal-overlay');
-
-const modalTrivia = document.getElementById('modal-trivia');
-const modalTriviaText = document.getElementById('modal-trivia-text');
-
-const prizeLabel = document.getElementById('prize-label');
-const resultPrize = document.getElementById('result-prize');
-const resultStage = document.getElementById('result-stage');
-const resultAttempts = document.getElementById('result-attempts');
-const resultMistakes = document.getElementById('result-mistakes');
-const resultTitle = document.getElementById('result-title');
-const resultDesc = document.getElementById('result-description');
-
-function showScreen(screenToShow) {
-  screens.forEach((screen) => {
+export function showScreen(screenToShow) {
+  uiElements.screens.forEach((screen) => {
     screen.hidden = true;
   });
   screenToShow.hidden = false;

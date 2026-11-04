@@ -1,6 +1,6 @@
-const STAGE_TIMES = [25, 20, 15, 10];
+export const STAGE_TIMES = [10, 10, 10, 10];
 
-const STATUS = {
+export const STATUS = {
   WAITING: "waiting",
   PLAYING: "playing",
   TRANSITION: "transition",
@@ -8,13 +8,13 @@ const STATUS = {
   GAME_OVER: "gameOver"
 }
 
-const FEEDBACKS = {
+export const FEEDBACKS = {
   empty: ["Oops!", "You haven't entered an answer yet. Type something before submitting!"],
   incorrect: ["Not quite!", "That's not the right word. Try again!"],
   incomplete: ["Almost there!", "Fill in all the letters before submitting."],
 };
 
-const MODALS = {
+export const MODALS = {
   nextRound: {
     title: "Time's up!",
     desc: "Get ready for the next round",
@@ -37,10 +37,10 @@ const MODALS = {
   }
 };
 
-const PRIZES = ["Prize A", "Prize B", "Prize C", "Prize D"];
-const LOSS_PRIZE = null;
+export const PRIZES = ["Prize A", "Prize B", "Prize C", "Prize D"];
+export const LOSS_PRIZE = null;
 
-const RESULTS = {
+export const RESULTS = {
   won: {
     title: "Congratulations!",
     description: "You've successfully guessed the word! Great job!",

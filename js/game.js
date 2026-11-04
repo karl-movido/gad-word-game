@@ -1,5 +1,10 @@
-class Game {
-  constructor() {
+import { STATUS, STAGE_TIMES, FEEDBACKS, MODALS, PRIZES, LOSS_PRIZE, RESULTS } from "./data.js";
+import { QUESTIONS  } from "./questions.js";
+import { showScreen } from "./dom.js";
+
+export class Game {
+  constructor(ui) {
+    this.ui = ui
     this.remainingQuestions = [];
     this.currentQuestion = null;
 
@@ -11,7 +16,7 @@ class Game {
     this.gameStatus = STATUS.PLAYING;
 
     this.hideModal();
-    showScreen(gameScreen);
+    showScreen(this.ui.gameScreen);
     this.clearFeedback();
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
@@ -49,7 +54,7 @@ class Game {
         if (this.currentStage === STAGE_TIMES.length) {
           this.gameStatus = STATUS.GAME_OVER;
           this.showModal("gameOver", () => {
-            showScreen(resultScreen);
+            showScreen(this.ui.resultScreen);
             this.showResult(STATUS.GAME_OVER);
           });
         } else {
@@ -71,8 +76,8 @@ class Game {
   }
 
   updateTimerDisplay() {
-    timerText.textContent = this.remainingTime;
-    timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage - 1]) * 100 + "%";
+    this.ui.timerText.textContent = this.remainingTime;
+    this.ui.timerBar.style.width = (this.remainingTime / STAGE_TIMES[this.currentStage - 1]) * 100 + "%";
   }
 
   pickQuestion() {
@@ -86,8 +91,8 @@ class Game {
   }
 
   updatePictures() {
-    picturesCont.innerHTML = '';
-    picturesCont.className = `stage-${this.currentStage}`;
+    this.ui.picturesCont.innerHTML = '';
+    this.ui.picturesCont.className = `stage-${this.currentStage}`;
 
     const visible = this.currentQuestion.images.slice(0, this.currentStage);
 
@@ -100,12 +105,12 @@ class Game {
       img.alt = `Picture ${index + 1}`;
 
       div.appendChild(img);
-      picturesCont.appendChild(div);
+      this.ui.picturesCont.appendChild(div);
     });
   }
 
   buildAnswerSlots() {
-    answerSlots.innerHTML = "";
+    this.ui.answerSlots.innerHTML = "";
     this.slotElements = [];
   
     this.currentQuestion.display.split("").forEach((c) => {
@@ -118,7 +123,7 @@ class Game {
         this.slotElements.push(slot);
       }
 
-      answerSlots.appendChild(slot);
+      this.ui.answerSlots.appendChild(slot);
     })
   }
 
@@ -147,7 +152,7 @@ class Game {
       clearInterval(this.timerId);
       this.gameStatus = STATUS.WON;
       this.showModal("victory", () => {
-        showScreen(resultScreen)
+        showScreen(this.ui.resultScreen)
         this.showResult(STATUS.WON);
       });
 
@@ -161,20 +166,20 @@ class Game {
   showFeedback(state) {
     const [header, desc] = FEEDBACKS[state] || ["", ""];
 
-    feedbackHeader.textContent = header;
-    feedbackDesc.textContent = desc;
+    this.ui.feedbackHeader.textContent = header;
+    this.ui.feedbackDesc.textContent = desc;
 
     clearTimeout(this.timeoutId);
 
     this.timeoutId = setTimeout(() => {
-      feedbackHeader.textContent = "";
-      feedbackDesc.textContent = "";
+      this.ui.feedbackHeader.textContent = "";
+      this.ui.feedbackDesc.textContent = "";
     }, 3000);
   }
 
   clearFeedback() {
-    feedbackHeader.textContent = "";
-    feedbackDesc.textContent = "";
+    this.ui.feedbackHeader.textContent = "";
+    this.ui.feedbackDesc.textContent = "";
   }
 
   showModal(type, onDone) {
@@ -183,7 +188,15 @@ class Game {
 
     clearInterval(this.modalTimerId);
     this.renderModal(config);
-    modalOverlay.hidden = false;
+
+    if (config.buttonText) {
+      this.ui.modalButton.onclick = () => {
+        this.hideModal();
+        onDone?.();
+      }
+    }
+
+    this.ui.modalOverlay.hidden = false;
 
     if (config.hasCountdown) {
       this.startModalTimer(config.countdown, () => {
@@ -201,27 +214,27 @@ class Game {
     const trivia = (this.currentQuestion.trivia || "").trim();
     const showTrivia = hasTrivia && Boolean(trivia);
 
-    modalTitle.textContent = title;
-    modalMsg.textContent = desc;
-    modalButton.textContent = buttonText || "";
+    this.ui.modalTitle.textContent = title;
+    this.ui.modalMsg.textContent = desc;
+    this.ui.modalButton.textContent = buttonText || "";
     
     if (showTrivia) {
-      modalTriviaText.textContent = trivia;
+      this.ui.modalTriviaText.textContent = trivia;
     }
     
-    modalTrivia.hidden = !showTrivia;
-    modalTimer.hidden = !hasCountdown;
-    modalButton.hidden = !buttonText;
+    this.ui.modalTrivia.hidden = !showTrivia;
+    this.ui.modalTimer.hidden = !hasCountdown;
+    this.ui.modalButton.hidden = !buttonText;
   }
 
   startModalTimer(seconds, onDone) {
-    modalCountdown.textContent = seconds;
+    this.ui.modalCountdown.textContent = seconds;
 
     clearInterval(this.modalTimerId);
 
     this.modalTimerId = setInterval(() => {
       seconds--;
-      modalCountdown.textContent = seconds;
+      this.ui.modalCountdown.textContent = seconds;
 
       if (seconds <= 0) {
         clearInterval(this.modalTimerId);
@@ -231,7 +244,7 @@ class Game {
   }
 
   hideModal() {
-    modalOverlay.hidden = true;
+    this.ui.modalOverlay.hidden = true;
     clearInterval(this.modalTimerId);
   }
 
@@ -240,18 +253,18 @@ class Game {
 
     if (!result) return;
 
-    resultTitle.textContent = result.title;
-    resultDesc.textContent = result.description;
+    this.ui.resultTitle.textContent = result.title;
+    this.ui.resultDesc.textContent = result.description;
 
     const prize = state === STATUS.WON ? PRIZES[this.currentStage - 1] : LOSS_PRIZE;
 
-    prizeLabel.hidden = !prize;
-    resultPrize.hidden = !prize;
-    prizeLabel.textContent = result.prizeLabel;
-    resultPrize.textContent = prize;
-    resultStage.textContent = `Round ${this.currentStage}`;
+    this.ui.prizeLabel.hidden = !prize;
+    this.ui.resultPrize.hidden = !prize;
+    this.ui.prizeLabel.textContent = result.prizeLabel;
+    this.ui.resultPrize.textContent = prize;
+    this.ui.resultStage.textContent = `Round ${this.currentStage}`;
 
-    resultAttempts.textContent = this.totalAttempts;
-    resultMistakes.textContent = this.wrongGuesses;
+    this.ui.resultAttempts.textContent = this.totalAttempts;
+    this.ui.resultMistakes.textContent = this.wrongGuesses;
   }
 }

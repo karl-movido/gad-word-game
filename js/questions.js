@@ -1,4 +1,6 @@
-const QUESTIONS = [
+import { STAGE_TIMES } from "./data.js";
+
+export const QUESTIONS = [
   makeQuestion({
     id: "ally", hint: "A supportive friend from the outside",
     trivia: "An ally actively uses their own privilege to advocate for and support marginalized groups, which is a crucial element in building inclusive and safe communities.",
