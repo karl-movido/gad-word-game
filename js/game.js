@@ -51,10 +51,16 @@ class Game {
 
         if (this.currentStage === STAGE_TIMES.length) {
           this.gameStatus = STATUS.GAME_OVER;
-          this.showModal("gameOver");
+          this.showModal("gameOver", () => {
+            showScreen(resultScreen);
+            this.showResult(STATUS.GAME_OVER);
+          });
         } else {
           this.gameStatus = STATUS.TRANSITION;
-          this.showModal("nextRound");
+          this.showModal("nextRound", () => {
+            this.gameStatus = STATUS.PLAYING;
+            this.nextStage();
+          });
         }
       }
     }, 1000);
@@ -116,8 +122,6 @@ class Game {
     })
   }
 
-
-
   checkAnswer() {
     if (this.gameStatus !== STATUS.PLAYING) return;
 
@@ -136,15 +140,16 @@ class Game {
     if (this.currentGuess === this.currentQuestion.answer) {
       clearInterval(this.timerId);
       this.gameStatus = STATUS.WON;
-      this.showModal("victory");
+      this.showModal("victory", () => {
+        showScreen(resultScreen)
+        this.showResult(STATUS.WON);
+      });
 
     } else {
       this.showFeedback("incorrect");
       this.wrongGuesses++;
       return;
     }
-
-
   }
 
   showFeedback(state) {
@@ -166,54 +171,57 @@ class Game {
     feedbackDesc.textContent = "";
   }
 
-  showModal(type) {
-
+  showModal(type, onDone) {
     const config = MODALS[type];
+    if (!config) return;
 
-    if (!config) {
-      return;
-    }
-
-    const trivia = (this.currentQuestion.trivia || "").trim();
-    const showTrivia = config.hasTrivia && Boolean(trivia);
-    modalTrivia.hidden = !showTrivia;
-    
-
+    clearInterval(this.modalTimerId);
+    this.renderModal(config);
     modalOverlay.hidden = false;
 
-    const title = config.title;
-    const desc = config.desc;
+    if (config.hasCountdown) {
+      this.startModalTimer(config.countdown, () => {
+        this.hideModal();
+        onDone?.();
+      })
+    }
+  }
+
+  renderModal(config) {
+    if (!config) return;
+
+    const { title, desc, hasCountdown, hasTrivia, buttonText } = config;
+
+    const trivia = (this.currentQuestion.trivia || "").trim();
+    const showTrivia = hasTrivia && Boolean(trivia);
 
     modalTitle.textContent = title;
     modalMsg.textContent = desc;
-
-    modalTimer.hidden = !config.hasCountdown;
-    modalButton.hidden = !config.buttonText;
-
+    modalButton.textContent = buttonText || "";
+    
     if (showTrivia) {
       modalTriviaText.textContent = trivia;
     }
+    
+    modalTrivia.hidden = !showTrivia;
+    modalTimer.hidden = !hasCountdown;
+    modalButton.hidden = !buttonText;
+  }
 
-    if (config.hasCountdown) {
-      let remaining = config.countdown;
-      modalCountdown.textContent = remaining;
+  startModalTimer(seconds, onDone) {
+    modalCountdown.textContent = seconds;
 
-      clearInterval(this.modalTimerId);
+    clearInterval(this.modalTimerId);
 
-      this.modalTimerId = setInterval(() => {
-        remaining--;
-        modalCountdown.textContent = remaining;
+    this.modalTimerId = setInterval(() => {
+      seconds--;
+      modalCountdown.textContent = seconds;
 
-        if (remaining <= 0) {
-          clearInterval(this.modalTimerId);
-          this.gameStatus = STATUS.PLAYING;
-          this.hideModal();
-          this.nextStage();
-        }
-      }, 1000);
-    }
-
-    modalButton.textContent = config.buttonText;
+      if (seconds <= 0) {
+        clearInterval(this.modalTimerId);
+        onDone?.();
+      }
+    }, 1000);
   }
 
   hideModal() {
