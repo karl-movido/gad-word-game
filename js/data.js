@@ -5,14 +5,20 @@ export const MODES = {
 
 export const MODE_CONFIG = {
   [MODES.NORMAL]: {
-    totalTime: 40,
-    visibleImagesCount: 4,
-    letterBankSize: 12,
-    prizes: ["Normal Mode Champion Badge"] // 1 prize for Normal Mode
+    name: "Normal Mode",
+    numberOfStages: 1,
+    stageDuration: 40,
+    imagesPerStage: 4,
+    letterBankSize: 15,
+    prize: "Standard Reward"
   },
   [MODES.PROGRESSIVE]: {
-    stageTimes: [10, 10, 10, 10],
-    prizes: ["alexa", "kate ", "lea", "charize"] // 4 progressive prizes
+    name: "Progressive Mode",
+    numberOfStages: 2,
+    stageDuration: 15,
+    imagesPerStage: 2,
+    letterBankSize: 15,
+    prize: "Grand Reward"
   }
 };
 

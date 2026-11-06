@@ -108,7 +108,7 @@ body {
   gap: 10px;
   
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
 
   margin: 0 auto;
 }
@@ -125,19 +125,6 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.stage-1 .picture-item {
-  width: 100%;
-  height: 100%;
-}
-
-
-.stage-2 .picture-item,
-.stage-3 .picture-item,
-.stage-4 .picture-item {
-  width: calc(50% - 5px);
-  height: calc(50% - 5px);
 }
 
 /* Answer area: a row of slots*/

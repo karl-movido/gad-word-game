@@ -1,7 +1,5 @@
 import { MODE_CONFIG, MODES } from "./data.js";
 
-const MAX_STAGES = MODE_CONFIG[MODES.PROGRESSIVE].stageTimes.length;
-
 export const QUESTIONS = [
   makeQuestion({
     id: "ally", hint: "A supportive friend from the outside",
@@ -40,7 +38,7 @@ export const QUESTIONS = [
 ];
 
 function pics(id, ext = "jpg", overrides = {}) {
-  return Array.from({ length: MAX_STAGES }, (_, i) => {
+  return Array.from({ length: 4 }, (_, i) => {
     const pictureNumber = i + 1;
     const thisExt = overrides[pictureNumber] || ext;
     return `${id}/${id}_${pictureNumber}.${thisExt}`;

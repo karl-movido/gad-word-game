@@ -20,19 +20,14 @@ export class Game {
     this.hideModal();
     showScreen(this.ui.gameScreen);
     this.clearFeedback();
-    
+
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
+    this.buildLetterBank();
 
-    if (this.mode === MODES.NORMAL) {
-      this.buildLetterBank();
-      this.totalTime = MODE_CONFIG[MODES.NORMAL].totalTime;
-      this.remainingTime = this.totalTime;
-    } else {
-      this.ui.letterBank.innerHTML = "";
-      this.totalTime = MODE_CONFIG[MODES.PROGRESSIVE].stageTimes[0];
-      this.remainingTime = this.totalTime;
-    }
+    const config = MODE_CONFIG[this.mode];
+    this.totalTime = config.stageDuration;
+    this.remainingTime = this.totalTime;
 
     this.updatePictures();
     this.startTimer();
@@ -42,7 +37,7 @@ export class Game {
     clearInterval(this.timerId);
     clearTimeout(this.timeoutId);
     clearInterval(this.modalTimerId);
-    
+
     this.currentStage = 1;
     this.currentGuess = "";
     this.slotElements = [];
@@ -55,7 +50,6 @@ export class Game {
   }
 
   startTimer() {
-    console.log(this.currentStage);
     clearInterval(this.timerId);
     this.updateTimerDisplay();
 
@@ -69,28 +63,20 @@ export class Game {
 
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
+        const config = MODE_CONFIG[this.mode];
 
-        if (this.mode === MODES.NORMAL) {
+        if (this.currentStage >= config.numberOfStages) {
           this.gameStatus = STATUS.GAME_OVER;
           this.showModal("gameOver", () => {
             showScreen(this.ui.resultScreen);
             this.showResult(STATUS.GAME_OVER);
           });
         } else {
-          const stages = MODE_CONFIG[MODES.PROGRESSIVE].stageTimes;
-          if (this.currentStage >= stages.length) {
-            this.gameStatus = STATUS.GAME_OVER;
-            this.showModal("gameOver", () => {
-              showScreen(this.ui.resultScreen);
-              this.showResult(STATUS.GAME_OVER);
-            });
-          } else {
-            this.gameStatus = STATUS.TRANSITION;
-            this.showModal("nextRound", () => {
-              this.gameStatus = STATUS.PLAYING;
-              this.nextStage();
-            });
-          }
+          this.gameStatus = STATUS.TRANSITION;
+          this.showModal("nextRound", () => {
+            this.gameStatus = STATUS.PLAYING;
+            this.nextStage();
+          });
         }
       }
     }, 1000);
@@ -98,11 +84,12 @@ export class Game {
 
   nextStage() {
     this.currentStage += 1;
+    this.gameStatus = STATUS.PLAYING;
     playSound('stageUp');
-    this.updateHint();
     this.updatePictures();
-    const stageTimes = MODE_CONFIG[MODES.PROGRESSIVE].stageTimes;
-    this.totalTime = stageTimes[this.currentStage - 1];
+
+    const config = MODE_CONFIG[this.mode];
+    this.totalTime = config.stageDuration;
     this.remainingTime = this.totalTime;
     this.startTimer();
   }
@@ -120,22 +107,14 @@ export class Game {
     return this.remainingQuestions.splice(index, 1)[0];
   }
 
-  updateHint() {
-    this.ui.hint.textContent = this.currentQuestion.hint;
-  }
-
   updatePictures() {
     this.ui.picturesCont.innerHTML = "";
-    
-    const visibleCount = this.mode === MODES.NORMAL 
-      ? MODE_CONFIG[MODES.NORMAL].visibleImagesCount 
-      : this.currentStage;
+    const config = MODE_CONFIG[this.mode];
 
-    this.ui.picturesCont.className = `stage-${visibleCount}`;
-
+    const visibleCount = this.currentStage * config.imagesPerStage;
     const visible = this.currentQuestion.images.slice(0, visibleCount);
-    visible.forEach((path, index) => {
 
+    visible.forEach((path, index) => {
       const div = document.createElement("div");
       div.className = "picture-item";
 
@@ -166,8 +145,9 @@ export class Game {
 
   buildLetterBank() {
     this.ui.letterBank.innerHTML = "";
+    const config = MODE_CONFIG[this.mode];
     const answerChars = this.currentQuestion.answer.split("");
-    const bankSize = Math.max(MODE_CONFIG[MODES.NORMAL].letterBankSize, answerChars.length);
+    const bankSize = Math.max(config.letterBankSize, answerChars.length);
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     const pool = [...answerChars];
@@ -255,8 +235,7 @@ export class Game {
 
     if (config.sound) {
       playSound(config.sound);
-    };
-
+    }
 
     clearInterval(this.modalTimerId);
     this.renderModal(config);
@@ -334,21 +313,17 @@ export class Game {
     let prize = LOSS_PRIZE;
 
     if (state === STATUS.WON) {
-      const modePrizes = MODE_CONFIG[this.mode].prizes;
-      if (this.mode === MODES.NORMAL) {
-        prize = modePrizes[0]; // Normal mode gives 1 fixed prize
-      } else {
-        // Progressive mode gives 1 of 4 depending on current stage/pictures shown
-        const prizeIndex = Math.min(this.currentStage - 1, modePrizes.length - 1);
-        prize = modePrizes[prizeIndex];
-      }
+      const winPrize = MODE_CONFIG[this.mode].prize;
+      prize = typeof winPrize === "object" ? winPrize.reward : winPrize;
     }
 
     this.ui.prizeLabel.hidden = !prize;
     this.ui.resultPrize.hidden = !prize;
     this.ui.prizeLabel.textContent = result.prizeLabel;
     this.ui.resultPrize.textContent = prize || "";
-    this.ui.resultStage.textContent = this.mode === MODES.NORMAL ? "Normal Mode" : `Round ${this.currentStage} (${this.currentStage} Picture/s)`;
+    this.ui.resultStage.textContent = this.mode === MODES.NORMAL 
+      ? "Normal Mode" 
+      : `Stage ${this.currentStage} of ${MODE_CONFIG[MODES.PROGRESSIVE].numberOfStages}`;
 
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
