@@ -1,5 +1,5 @@
+import { EASY_QUESTIONS, HARD_QUESTIONS, QUESTIONS_POOL } from "./questions.js";
 import { STATUS, MODES, MODE_CONFIG, FEEDBACKS, MODALS, RESULTS, LOSS_PRIZE } from "./data.js";
-import { QUESTIONS } from "./questions.js";
 import { showScreen } from "./dom.js";
 import { playSound, stopSound } from "./audio.js";
 
@@ -9,11 +9,14 @@ export class Game {
     this.remainingQuestions = [];
     this.currentQuestion = null;
     this.mode = MODES.NORMAL;
+    this.lastQuestionId = null;
     this.reset();
   }
 
   start(mode = MODES.NORMAL) {
     this.mode = mode;
+    this.lastQuestionId = null;
+    this.remainingQuestions = [];
     this.reset();
     this.gameStatus = STATUS.PLAYING;
 
@@ -47,6 +50,7 @@ export class Game {
     this.timerId = null;
     this.timeoutId = null;
     this.modalTimerId = null;
+    this.lastQuestionId = null;
   }
 
   startTimer() {
@@ -100,11 +104,25 @@ export class Game {
   }
 
   pickQuestion() {
-    if (this.remainingQuestions.length <= 0) {
-      this.remainingQuestions = [...QUESTIONS];
+    const currentPool = QUESTIONS_POOL[this.mode];
+    const seenIds = this.getSeenQuestionIds();
+
+    let available = currentPool.filter(q => !seenIds.includes(q.id));
+
+    if (available.length === 0) {
+      this.clearSeenQuestions();
+      available = [...currentPool];
     }
-    const index = Math.floor(Math.random() * this.remainingQuestions.length);
-    return this.remainingQuestions.splice(index, 1)[0];
+
+    let candidatePool = available.filter(q => q.id !== this.lastQuestionId);
+    if (candidatePool.length === 0) {
+      candidatePool = available;
+    }
+
+    const index = Math.floor(Math.random() * candidatePool.length);
+    const selected = candidatePool[index];
+
+    return selected;
   }
 
   updatePictures() {
@@ -119,7 +137,7 @@ export class Game {
       div.className = "picture-item";
 
       const img = document.createElement("img");
-      img.src = `assets/images/${path}`;
+      img.src = `assets/images/${this.mode}/${path}`;
       img.alt = `Picture ${index + 1}`;
 
       div.appendChild(img);
@@ -198,6 +216,7 @@ export class Game {
     this.totalAttempts++;
 
     if (this.currentGuess === this.currentQuestion.answer) {
+      this.markQuestionAsSeen(this.currentQuestion.id);
       stopSound('timer');
       clearInterval(this.timerId);
       this.gameStatus = STATUS.WON;
@@ -321,11 +340,36 @@ export class Game {
     this.ui.resultPrize.hidden = !prize;
     this.ui.prizeLabel.textContent = result.prizeLabel;
     this.ui.resultPrize.textContent = prize || "";
-    this.ui.resultStage.textContent = this.mode === MODES.NORMAL 
-      ? "Normal Mode" 
+    this.ui.resultStage.textContent = this.mode === MODES.NORMAL
+      ? "Normal Mode"
       : `Stage ${this.currentStage} of ${MODE_CONFIG[MODES.PROGRESSIVE].numberOfStages}`;
 
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
+  }
+
+  getStorageKey() {
+    return `seen_question_${this.mode}`;
+  }
+
+  getSeenQuestionIds() {
+    const key = this.getStorageKey();
+    const saved = localStorage.getItem(key);
+
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  markQuestionAsSeen(id) {
+    const seen = this.getSeenQuestionIds();
+    if (!seen.includes(id)) {
+      seen.push(id);
+      const key = this.getStorageKey();
+      localStorage.setItem(key, JSON.stringify(seen));
+    }
+  }
+
+  clearSeenQuestions() {
+    const key = this.getStorageKey();
+    localStorage.removeItem(key);
   }
 }

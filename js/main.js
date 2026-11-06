@@ -22,7 +22,7 @@ playAgainButton.addEventListener("click", () => {
   game.start(game.mode);
 });
 
-document.addEventListener("keydown", handleKeyPress);
+window.addEventListener("keydown", handleKeyPress);
 
 function handleKeyPress(event) {
   if (game.gameStatus !== STATUS.PLAYING) return;
