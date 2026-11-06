@@ -17,7 +17,11 @@
         Look at the pictures, guess the word they have in common,
         and type your answer before time runs out.
       </p>
-      <button type="button" id="start-button">Start Game</button>
+
+      <div class="mode-selection">
+        <button type="button" id="start-normal-btn" class="mode-btn">Normal Mode</button>
+        <button type="button" id="start-hard-btn" class="mode-btn secondary">Progressive Mode</button>
+      </div>
     </section>
 
     <section id="game-screen" class="screen" hidden>
@@ -36,6 +40,8 @@
       <p id="answer-hint" class="answer-hint"></p>
 
       <div id="answer-slots"></div>
+
+      <div id="letter-bank"></div>
 
       <button type="button" id="submit-button">Submit</button>
 
@@ -101,4 +107,9 @@
 
   <script type="module" src="js/main.js"></script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+
+</html>
+>>>>>>> normal-difficult

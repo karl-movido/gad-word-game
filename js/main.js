@@ -1,36 +1,33 @@
-import { uiElements, showScreen } from "./dom.js";
+import { uiElements } from "./dom.js";
 import { Game } from "./game.js";
-import { STATUS } from "./data.js";
-import { playSound } from "./audio.js";
+import { STATUS, MODES } from "./data.js";
 
-const { startButton, submitButton, modalButton, playAgainButton, resultScreen } = uiElements;
+const { startNormalBtn, startHardBtn, submitButton, playAgainButton } = uiElements;
 
 const game = new Game(uiElements);
 
-startButton.addEventListener('click', () => {
-  playSound('click');
-  game.start();
+startNormalBtn.addEventListener("click", () => {
+  game.start(MODES.NORMAL);
 });
 
-submitButton.addEventListener('click', () => {
+startHardBtn.addEventListener("click", () => {
+  game.start(MODES.PROGRESSIVE);
+});
+
+submitButton.addEventListener("click", () => {
   game.checkAnswer();
 });
 
-playAgainButton.addEventListener('click', () => {
-  playSound('click');
-  showScreen(game.ui.startScreen);
+playAgainButton.addEventListener("click", () => {
+  game.start(game.mode);
 });
 
-document.addEventListener('keydown', handleKeyPress);
+document.addEventListener("keydown", handleKeyPress);
 
 function handleKeyPress(event) {
-  if (game.gameStatus !== STATUS.PLAYING) {
-    return;
-  }
+  if (game.gameStatus !== STATUS.PLAYING) return;
 
-  if (event.ctrlKey || event.metaKey || event.altKey) {
-    return;
-  }
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
 
   if (/^[a-z]$/i.test(event.key)) {
     if (game.currentGuess.length < game.currentQuestion.answer.length) {

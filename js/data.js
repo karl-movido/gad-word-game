@@ -1,4 +1,20 @@
-export const STAGE_TIMES = [15, 15];
+export const MODES = {
+  NORMAL: "normal",
+  PROGRESSIVE: "progressive"
+};
+
+export const MODE_CONFIG = {
+  [MODES.NORMAL]: {
+    totalTime: 40,
+    visibleImagesCount: 4,
+    letterBankSize: 12,
+    prizes: ["Normal Mode Champion Badge"] // 1 prize for Normal Mode
+  },
+  [MODES.PROGRESSIVE]: {
+    stageTimes: [10, 10, 10, 10],
+    prizes: ["alexa", "kate ", "lea", "charize"] // 4 progressive prizes
+  }
+};
 
 export const STATUS = {
   WAITING: "waiting",
@@ -6,7 +22,7 @@ export const STATUS = {
   TRANSITION: "transition",
   WON: "won",
   GAME_OVER: "gameOver"
-}
+};
 
 export const FEEDBACKS = {
   empty: ["Oops!", "You haven't entered an answer yet. Type something before submitting!"],
@@ -33,14 +49,13 @@ export const MODALS = {
   },
   gameOver: {
     title: "Game Over",
-    desc: "You ran out of chances. Better luck next time!",
     sound: 'error',
+    desc: "You ran out of time. Better luck next time!",
     hasCountdown: false,
     buttonText: "View Results"
   }
 };
 
-export const PRIZES = ["Prize A", "Prize B", "Prize C", "Prize D"];
 export const LOSS_PRIZE = null;
 
 export const RESULTS = {
@@ -49,7 +64,6 @@ export const RESULTS = {
     description: "You've successfully guessed the word! Great job!",
     prizeLabel: "Your Reward",
   },
-
   gameOver: {
     title: "Better Luck Next Time!",
     description: "You weren't able to guess the word this time. Don't give up!",
