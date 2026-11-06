@@ -27,6 +27,7 @@ export const uiElements = {
   resultMistakes: document.getElementById('result-mistakes'),
   resultTitle: document.getElementById('result-title'),
   resultDesc: document.getElementById('result-description'),
+  hint: document.getElementById('answer-hint')
 };
 
 export function showScreen(screenToShow) {

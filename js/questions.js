@@ -33,7 +33,7 @@ export const QUESTIONS = [
 ];
 
 function pics(id, ext = "jpg", overrides = {}) {
-  return Array.from({ length: STAGE_TIMES.length }, (_, i) => {
+  return Array.from({ length: 4}, (_, i) => {
     const pictureNumber = i + 1;
     const thisExt = overrides[pictureNumber] || ext;
     return `${id}/${id}_${pictureNumber}.${thisExt}`;

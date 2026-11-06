@@ -1,6 +1,7 @@
 import { STATUS, STAGE_TIMES, FEEDBACKS, MODALS, PRIZES, LOSS_PRIZE, RESULTS } from "./data.js";
-import { QUESTIONS  } from "./questions.js";
+import { QUESTIONS } from "./questions.js";
 import { showScreen } from "./dom.js";
+import { playSound, stopSound } from "./audio.js";
 
 export class Game {
   constructor(ui) {
@@ -20,6 +21,7 @@ export class Game {
     this.clearFeedback();
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
+    this.updateHint();
     this.updatePictures();
     this.startTimer();
   }
@@ -41,12 +43,17 @@ export class Game {
   }
 
   startTimer() {
+    console.log(this.currentStage);
     clearInterval(this.timerId);
     this.updateTimerDisplay();
 
     this.timerId = setInterval(() => {
       this.remainingTime--;
       this.updateTimerDisplay();
+
+      if (this.remainingTime <= 3 && this.remainingTime > 0) {
+        playSound('warning');
+      }
 
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
@@ -70,6 +77,8 @@ export class Game {
 
   nextStage() {
     this.currentStage += 1;
+    playSound('stageUp');
+    this.updateHint();
     this.updatePictures();
     this.remainingTime = STAGE_TIMES[this.currentStage - 1];
     this.startTimer();
@@ -90,13 +99,17 @@ export class Game {
     return this.remainingQuestions.splice(index, 1)[0];
   }
 
+  updateHint() {
+    this.ui.hint.textContent = this.currentQuestion.hint;
+  }
+
   updatePictures() {
     this.ui.picturesCont.innerHTML = '';
-    this.ui.picturesCont.className = `stage-${this.currentStage}`;
 
-    const visible = this.currentQuestion.images.slice(0, this.currentStage);
+    const visible = this.currentQuestion.images.slice(0, this.currentStage * 2);
 
     visible.forEach((path, index) => {
+
       const div = document.createElement("div");
       div.className = 'picture-item';
 
@@ -112,7 +125,7 @@ export class Game {
   buildAnswerSlots() {
     this.ui.answerSlots.innerHTML = "";
     this.slotElements = [];
-  
+
     this.currentQuestion.display.split("").forEach((c) => {
       const slot = document.createElement("div");
 
@@ -137,11 +150,13 @@ export class Game {
     if (this.gameStatus !== STATUS.PLAYING) return;
 
     if (this.currentGuess.length <= 0) {
+      playSound('blocked');
       this.showFeedback("empty");
       return;
     }
 
     if (this.currentGuess.length < this.currentQuestion.answer.length) {
+      playSound('error');
       this.showFeedback("incomplete");
       return;
     }
@@ -149,14 +164,17 @@ export class Game {
     this.totalAttempts++;
 
     if (this.currentGuess === this.currentQuestion.answer) {
+      stopSound('timer');
       clearInterval(this.timerId);
       this.gameStatus = STATUS.WON;
       this.showModal("victory", () => {
+
         showScreen(this.ui.resultScreen)
         this.showResult(STATUS.WON);
       });
 
     } else {
+      playSound('error');
       this.showFeedback("incorrect");
       this.wrongGuesses++;
       return;
@@ -186,6 +204,11 @@ export class Game {
     const config = MODALS[type];
     if (!config) return;
 
+    if (config.sound) {
+      playSound(config.sound);
+    };
+
+
     clearInterval(this.modalTimerId);
     this.renderModal(config);
 
@@ -200,6 +223,7 @@ export class Game {
 
     if (config.hasCountdown) {
       this.startModalTimer(config.countdown, () => {
+        playSound('close');
         this.hideModal();
         onDone?.();
       })
@@ -217,11 +241,11 @@ export class Game {
     this.ui.modalTitle.textContent = title;
     this.ui.modalMsg.textContent = desc;
     this.ui.modalButton.textContent = buttonText || "";
-    
+
     if (showTrivia) {
       this.ui.modalTriviaText.textContent = trivia;
     }
-    
+
     this.ui.modalTrivia.hidden = !showTrivia;
     this.ui.modalTimer.hidden = !hasCountdown;
     this.ui.modalButton.hidden = !buttonText;
@@ -234,6 +258,10 @@ export class Game {
 
     this.modalTimerId = setInterval(() => {
       seconds--;
+
+      if (seconds > 0) {
+        playSound('timer');
+      }
       this.ui.modalCountdown.textContent = seconds;
 
       if (seconds <= 0) {
@@ -244,6 +272,10 @@ export class Game {
   }
 
   hideModal() {
+    if (!this.ui.modalOverlay.hidden) {
+      playSound('close');
+    }
+
     this.ui.modalOverlay.hidden = true;
     clearInterval(this.modalTimerId);
   }

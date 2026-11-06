@@ -1,4 +1,4 @@
-export const STAGE_TIMES = [10, 10, 10, 10];
+export const STAGE_TIMES = [15, 15];
 
 export const STATUS = {
   WAITING: "waiting",
@@ -19,6 +19,7 @@ export const MODALS = {
     title: "Time's up!",
     desc: "Get ready for the next round",
     hasCountdown: true,
+    sound: 'blocked',
     countdown: 3,
     buttonText: null
   },
@@ -26,12 +27,14 @@ export const MODALS = {
     title: "Correct!",
     desc: "Great job! You guessed the word",
     hasCountdown: false,
+    sound: 'reward',
     hasTrivia: true,
     buttonText: "View results"
   },
   gameOver: {
     title: "Game Over",
     desc: "You ran out of chances. Better luck next time!",
+    sound: 'error',
     hasCountdown: false,
     buttonText: "View Results"
   }
