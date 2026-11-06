@@ -21,7 +21,35 @@ body {
 
 /* Makes the "hidden" attribute work even on elements that use display: flex */
 [hidden] {
-  display: none;
+  display: none !important;
+}
+
+/* Mode Selection Buttons */
+.mode-selection {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.mode-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background-color: #292929;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.mode-btn.secondary {
+  background-color: #666;
+}
+
+.mode-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Game header: question number on the left, timer on the right */
@@ -46,7 +74,7 @@ body {
   transition: width 1s linear;
 }
 
-/* Picture area: 2 x 2 grid*/
+/* Picture area: grid */
 #picture-container {
   display: flex;
   flex-wrap: wrap;
@@ -77,7 +105,6 @@ body {
   height: 100%;
 }
 
-
 .stage-2 .picture-item,
 .stage-3 .picture-item,
 .stage-4 .picture-item {
@@ -101,6 +128,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .answer-gap {
@@ -110,6 +139,42 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Letter bank area */
+#letter-bank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.letter-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background-color: #f4f4f4;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.letter-btn:hover {
+  background-color: #ddd;
+}
+
+#submit-button {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* Feedback message */
@@ -144,10 +209,6 @@ body {
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 100;                 
-}
-
-.modal-overlay[hidden] {
-  display: none;
 }
 
 .modal {

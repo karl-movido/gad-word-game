@@ -1,4 +1,6 @@
-import { STAGE_TIMES } from "./data.js";
+import { MODE_CONFIG, MODES } from "./data.js";
+
+const MAX_STAGES = MODE_CONFIG[MODES.PROGRESSIVE].stageTimes.length;
 
 export const QUESTIONS = [
   makeQuestion({
@@ -26,21 +28,26 @@ export const QUESTIONS = [
     trivia: "In GAD and LGBTQIA+ advocacy, access to hormone therapy is a vital part of Gender-Affirming Healthcare, helping align a transgender individual's physical body with their gender identity."
   }),
   makeQuestion({
-  id: "safe-space", 
-  hint: "An environment free from harassment and discrimination",
-  trivia: "The core concept behind RA 11313 (Bawal Bastos Law), which mandates that streets, workplaces, and schools must be free from gender-based sexual harassment."
-})
+    id: "safe-space", 
+    hint: "An environment free from harassment and discrimination",
+    trivia: "The core concept behind RA 11313 (Bawal Bastos Law), which mandates that streets, workplaces, and schools must be free from gender-based sexual harassment."
+  }),
+   makeQuestion({
+    id: "development", 
+    hint: "An environment free from harassment and discriminaton",
+    trivia: "The core concept behind RA 11313 (Bawal Bastos ), which mandates that streets, workplaces, and schools must be free from gender-based sexual harassment."
+  }) 
 ];
 
 function pics(id, ext = "jpg", overrides = {}) {
-  return Array.from({ length: STAGE_TIMES.length }, (_, i) => {
+  return Array.from({ length: MAX_STAGES }, (_, i) => {
     const pictureNumber = i + 1;
     const thisExt = overrides[pictureNumber] || ext;
     return `${id}/${id}_${pictureNumber}.${thisExt}`;
   });
 }
 
-function makeQuestion({ id, answer = id.replaceAll("-", "").toUpperCase(), display = id.replaceAll("-", " ").toUpperCase() , ext, overrides, hint = "", trivia = "" }) {
+function makeQuestion({ id, answer = id.replaceAll("-", "").toUpperCase(), display = id.replaceAll("-", " ").toUpperCase(), ext, overrides, hint = "", trivia = "" }) {
   return {
     id,
     answer,
