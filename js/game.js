@@ -10,10 +10,12 @@ export class Game {
     this.currentQuestion = null;
     this.mode = MODES.NORMAL;
     this.lastQuestionId = null;
+    this.usedLetterButton = [];
     this.reset();
   }
 
   start(mode = MODES.NORMAL) {
+
     this.mode = mode;
     this.lastQuestionId = null;
     this.remainingQuestions = [];
@@ -163,6 +165,8 @@ export class Game {
 
   buildLetterBank() {
     this.ui.letterBank.innerHTML = "";
+    this.usedLetterButton = [];
+
     const config = MODE_CONFIG[this.mode];
     const answerChars = this.currentQuestion.answer.split("");
     const bankSize = Math.max(config.letterBankSize, answerChars.length);
@@ -181,15 +185,44 @@ export class Game {
       btn.type = "button";
       btn.className = "letter-btn";
       btn.textContent = letter;
+      btn.dataset.letter = letter;
+
       btn.addEventListener("click", () => {
-        if (this.gameStatus !== STATUS.PLAYING) return;
-        if (this.currentGuess.length < this.currentQuestion.answer.length) {
-          this.currentGuess += letter;
-          this.updateAnswerSlots();
-        }
+        this.handleLetterInput(letter, btn);
       });
       this.ui.letterBank.appendChild(btn);
     });
+  }
+
+  handleLetterInput(letter, btnElement = null) {
+    if (this.gameStatus !== STATUS.PLAYING) return;
+    if (this.currentGuess.length < this.currentQuestion.answer.length) {
+      const targetBtn = btnElement || Array.from(this.ui.letterBank.children).find(btn => 
+        btn.dataset.letter === letter && !btn.classList.contains("used"));
+
+      if (targetBtn) {
+        this.currentGuess += letter;
+        targetBtn.classList.add('used');
+        this.usedLetterButton.push(targetBtn);
+        
+        this.updateAnswerSlots();
+      }
+    }
+  }
+
+  handleBackspace() {
+    if (this.gameStatus !== STATUS.PLAYING) return;
+
+    if (this.currentGuess.length > 0) {
+      this.currentGuess = this.currentGuess.slice(0, -1);
+
+      const lastBtn = this.usedLetterButton.pop();
+      if (lastBtn) {
+        lastBtn.classList.remove('used');
+      }
+
+      this.updateAnswerSlots();
+    }
   }
 
   updateAnswerSlots() {

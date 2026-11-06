@@ -182,6 +182,13 @@ body {
   background-color: #ddd;
 }
 
+.letter-btn.used {
+  opacity: 0.3;
+  pointer-events: none; /* Prevents clicking the same button twice */
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
 #submit-button {
   width: 100%;
   max-width: 200px;

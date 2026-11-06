@@ -9,7 +9,7 @@ export const MODE_CONFIG = {
     numberOfStages: 1,
     stageDuration: 40,
     imagesPerStage: 4,
-    letterBankSize: 15,
+    letterBankSize: 16,
     prize: "Standard Reward"
   },
   [MODES.PROGRESSIVE]: {
@@ -17,7 +17,7 @@ export const MODE_CONFIG = {
     numberOfStages: 2,
     stageDuration: 15,
     imagesPerStage: 2,
-    letterBankSize: 15,
+    letterBankSize: 16,
     prize: "Grand Reward"
   }
 };
