@@ -4,8 +4,9 @@ import { showScreen } from "./dom.js";
 import { playSound, stopSound } from "./audio.js";
 
 export class Game {
-  constructor(ui) {
+  constructor(ui, assets) {
     this.ui = ui;
+    this.assets = assets;
     this.remainingQuestions = [];
     this.currentQuestion = null;
     this.mode = MODES.NORMAL;
@@ -24,7 +25,7 @@ export class Game {
 
     this.hideModal();
     showScreen(this.ui.gameScreen);
-    this.clearFeedback();
+    this.clearFeedback()
 
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
@@ -132,14 +133,22 @@ export class Game {
     const config = MODE_CONFIG[this.mode];
 
     const visibleCount = this.currentStage * config.imagesPerStage;
-    const visible = this.currentQuestion.images.slice(0, visibleCount);
+    const visiblePaths = this.currentQuestion.images.slice(0, visibleCount);
 
-    visible.forEach((path, index) => {
+    visiblePaths.forEach((path, index) => {
       const div = document.createElement("div");
       div.className = "picture-item";
 
-      const img = document.createElement("img");
-      img.src = `assets/images/${this.mode}/${path}`;
+      const preloadedImg = this.assets.images[path];
+      let img;
+
+      if (preloadedImg) {
+        img = preloadedImg.cloneNode(true);
+      } else {
+        img = document.createElement("img");
+        img.src = path;
+      }
+
       img.alt = `Picture ${index + 1}`;
 
       div.appendChild(img);
@@ -197,14 +206,14 @@ export class Game {
   handleLetterInput(letter, btnElement = null) {
     if (this.gameStatus !== STATUS.PLAYING) return;
     if (this.currentGuess.length < this.currentQuestion.answer.length) {
-      const targetBtn = btnElement || Array.from(this.ui.letterBank.children).find(btn => 
+      const targetBtn = btnElement || Array.from(this.ui.letterBank.children).find(btn =>
         btn.dataset.letter === letter && !btn.classList.contains("used"));
 
       if (targetBtn) {
         this.currentGuess += letter;
         targetBtn.classList.add('used');
         this.usedLetterButton.push(targetBtn);
-        
+
         this.updateAnswerSlots();
       }
     }
@@ -405,4 +414,6 @@ export class Game {
     const key = this.getStorageKey();
     localStorage.removeItem(key);
   }
+
+
 }

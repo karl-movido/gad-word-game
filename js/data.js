@@ -1,3 +1,5 @@
+import { ALL_QUESTIONS_IMAGES } from "./questions.js";
+
 export const MODES = {
   NORMAL: "normal",
   PROGRESSIVE: "progressive"
@@ -75,4 +77,18 @@ export const RESULTS = {
     description: "You weren't able to guess the word this time. Don't give up!",
     prizeLabel: "Game Result",
   }
+};
+
+export const AUDIO_PATHS = {
+  click: 'assets/audio/select.ogg',
+  blocked: 'assets/audio/blocked.ogg',
+  error: 'assets/audio/invalid-drop.ogg',
+  close: 'assets/audio/close.ogg',
+  reward: 'assets/audio/reward.ogg',
+  typing: 'assets/audio/typing.ogg',
+  backspace: 'assets/audio/hover.ogg',
+  open: 'assets/audio/open.ogg',
+  timer: 'assets/audio/progress-step.ogg',
+  warning: 'assets/audio/warning.ogg',
+  stageUp: 'assets/audio/skip-next.ogg',
 };

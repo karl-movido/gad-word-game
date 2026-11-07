@@ -1,23 +1,20 @@
-const SOUNDS = {
-  click: new Audio('assets/audio/select.ogg'),
-  blocked: new Audio('assets/audio/blocked.ogg'),
-  error: new Audio('assets/audio/invalid-drop.ogg'),
-  close: new Audio('assets/audio/close.ogg'),
-  reward: new Audio('assets/audio/reward.ogg'),
-  typing: new Audio('assets/audio/typing.ogg'),
-  backspace: new Audio('assets/audio/hover.ogg'),
-  open: new Audio('assets/audio/open.ogg'),
-  timer: new Audio('assets/audio/progress-step.ogg'),
-  warning: new Audio('assets/audio/warning.ogg'),
-  stageUp: new Audio('assets/audio/skip-next.ogg'),
-};
+import { AUDIO_PATHS } from "./data.js";
 
-Object.values(SOUNDS).forEach(sound => {
-  sound.volume = 0.2;
-});
+let assets = null;
+
+export function setAudioAssets(loadedAssets) {
+  assets = loadedAssets;
+  if (assets) {
+    Object.values(assets.audio).forEach(sound => {
+      sound.volume = 0.2;
+    });
+  }
+}
 
 export function playSound(key) {
-  const sound = SOUNDS[key];
+  if (!assets) return;
+  const path = AUDIO_PATHS[key];
+  const sound = assets.audio[path];
   if (!sound) return;
 
   sound.currentTime = 0;
@@ -25,7 +22,9 @@ export function playSound(key) {
 }
 
 export function stopSound(key) {
-  const sound = SOUNDS[key];
+  if (!assets) return;
+  const path = AUDIO_PATHS[key];
+  const sound = assets.audio[path];
   if (!sound) return;
 
   sound.pause();
