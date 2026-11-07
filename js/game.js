@@ -99,6 +99,10 @@ export class Game {
     this.totalTime = config.stageDuration;
     this.remainingTime = this.totalTime;
     this.startTimer();
+
+    if (this.mode === "progressive") {
+      this.shuffleLetterBank();
+    }
   }
 
   updateTimerDisplay() {
@@ -201,6 +205,17 @@ export class Game {
       });
       this.ui.letterBank.appendChild(btn);
     });
+  }
+
+  shuffleLetterBank() {
+    const buttons = Array.from(this.ui.letterBank.children);
+
+    for (let i = buttons.length - 1; i > 0; i-- ) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+    }
+
+    buttons.forEach(btn => this.ui.letterBank.appendChild(btn));
   }
 
   handleLetterInput(letter, btnElement = null) {
