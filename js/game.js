@@ -7,7 +7,6 @@ export class Game {
   constructor(ui, assets) {
     this.ui = ui;
     this.assets = assets;
-    this.remainingQuestions = [];
     this.currentQuestion = null;
     this.mode = MODES.NORMAL;
     this.lastQuestionId = null;
@@ -18,8 +17,6 @@ export class Game {
   start(mode = MODES.NORMAL) {
 
     this.mode = mode;
-    this.lastQuestionId = null;
-    this.remainingQuestions = [];
     this.reset();
     this.gameStatus = STATUS.PLAYING;
 
@@ -28,6 +25,7 @@ export class Game {
     this.clearFeedback()
 
     this.currentQuestion = this.pickQuestion();
+    this.updateQuestionTracker();
     this.buildAnswerSlots();
     this.buildLetterBank();
 
@@ -53,7 +51,6 @@ export class Game {
     this.timerId = null;
     this.timeoutId = null;
     this.modalTimerId = null;
-    this.lastQuestionId = null;
   }
 
   startTimer() {
@@ -121,6 +118,7 @@ export class Game {
       available = [...currentPool];
     }
 
+    // Filter out the last question played to avoid immediate repetition even on failure
     let candidatePool = available.filter(q => q.id !== this.lastQuestionId);
     if (candidatePool.length === 0) {
       candidatePool = available;
@@ -128,6 +126,7 @@ export class Game {
 
     const index = Math.floor(Math.random() * candidatePool.length);
     const selected = candidatePool[index];
+    this.lastQuestionId = selected.id; // Correctly track the last picked question
 
     return selected;
   }
@@ -210,7 +209,7 @@ export class Game {
   shuffleLetterBank() {
     const buttons = Array.from(this.ui.letterBank.children);
 
-    for (let i = buttons.length - 1; i > 0; i-- ) {
+    for (let i = buttons.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
     }
@@ -430,5 +429,13 @@ export class Game {
     localStorage.removeItem(key);
   }
 
+  getRemainingCount() {
+    const pool = QUESTIONS_POOL[this.mode];
+    const seen = this.getSeenQuestionIds();
+    return pool.filter(q => !seen.includes(q.id)).length;
+  }
 
+  updateQuestionTracker() {
+    this.ui.questionNumber.textContent = this.getRemainingCount();
+  }
 }

@@ -32,7 +32,9 @@ export const uiElements = {
   resultStage: document.getElementById("result-stage"),
   resultAttempts: document.getElementById("result-attempts"),
   resultMistakes: document.getElementById("result-mistakes"),
-  playAgainButton: document.getElementById("play-again-button")
+  playAgainButton: document.getElementById("play-again-button"),
+  
+  questionNumber: document.getElementById("question-number"),
 };
 
 export function showScreen(screen) {
