@@ -1,9 +1,9 @@
-import { uiElements } from "./dom.js";
+import { uiElements, showScreen } from "./dom.js";
 import { Game } from "./game.js";
 import { STATUS, MODES, AUDIO_PATHS } from "./data.js";
 import { loadAllAssets } from "./assetLoader.js";
 import { ALL_QUESTIONS_IMAGES } from "./questions.js";
-import { setAudioAssets } from "./audio.js";
+import { setAudioAssets, playSound } from "./audio.js";
 
 const ASSET_MANIFEST = {
   images: ALL_QUESTIONS_IMAGES,
@@ -32,19 +32,23 @@ async function initApp() {
 }
 
 startNormalBtn.addEventListener("click", () => {
+  playSound('click');
   game.start(MODES.NORMAL);
 });
 
 startHardBtn.addEventListener("click", () => {
+  playSound('click');
   game.start(MODES.PROGRESSIVE);
 });
 
 submitButton.addEventListener("click", () => {
+  playSound('click');
   game.checkAnswer();
 });
 
 playAgainButton.addEventListener("click", () => {
-  game.start(game.mode);
+  playSound('click');
+  showScreen(uiElements.startScreen);
 });
 
 window.addEventListener("keydown", handleKeyPress);

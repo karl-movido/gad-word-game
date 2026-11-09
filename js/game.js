@@ -24,8 +24,10 @@ export class Game {
     showScreen(this.ui.gameScreen);
     this.clearFeedback()
 
+    // the modal close sound is for an overlay that was actually open; on a fresh
+    // start it would double up with the mode button's click
+    playSound('start');
     this.currentQuestion = this.pickQuestion();
-    this.updateQuestionTracker();
     this.buildAnswerSlots();
     this.buildLetterBank();
 
@@ -56,6 +58,7 @@ export class Game {
   startTimer() {
     clearInterval(this.timerId);
     this.updateTimerDisplay();
+    this.syncWarningState();
 
     this.timerId = setInterval(() => {
       this.remainingTime--;
@@ -68,6 +71,7 @@ export class Game {
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
         const config = MODE_CONFIG[this.mode];
+        this.syncWarningState();
 
         if (this.currentStage >= config.numberOfStages) {
           this.gameStatus = STATUS.GAME_OVER;
@@ -86,6 +90,13 @@ export class Game {
     }, 1000);
   }
 
+  /* the timer bar breathes in CSS while time is left; drop the class the moment
+     it runs out so it stops dead instead of glowing on the game-over screen */
+  syncWarningState() {
+    const active = this.remainingTime > 0 && this.remainingTime <= 3;
+    this.ui.timerBar.classList.toggle("is-critical", active);
+  }
+
   nextStage() {
     this.currentStage += 1;
     this.gameStatus = STATUS.PLAYING;
@@ -99,6 +110,7 @@ export class Game {
 
     if (this.mode === "progressive") {
       this.shuffleLetterBank();
+      playSound('bonus');
     }
   }
 
@@ -111,22 +123,33 @@ export class Game {
     const currentPool = QUESTIONS_POOL[this.mode];
     const seenIds = this.getSeenQuestionIds();
 
-    let available = currentPool.filter(q => !seenIds.includes(q.id));
+    // Answered questions stay in play (the booth has more players than
+    // questions), they just must not come back too soon. Each pick prefers the
+    // least recently answered question, so the whole pool cycles before
+    // anything repeats:
+    //   1. never-answered questions
+    //   2. then the oldest answers, oldest first
+    // The last question played is never picked again immediately.
+    const ordered = [...currentPool].sort((a, b) => {
+      const aSeen = seenIds.indexOf(a.id);
+      const bSeen = seenIds.indexOf(b.id);
 
-    if (available.length === 0) {
-      this.clearSeenQuestions();
-      available = [...currentPool];
-    }
+      if (aSeen === -1 && bSeen === -1) return Math.random() - 0.5;
+      if (aSeen === -1) return -1;
+      if (bSeen === -1) return 1;
+      return aSeen - bSeen;
+    });
 
-    // Filter out the last question played to avoid immediate repetition even on failure
-    let candidatePool = available.filter(q => q.id !== this.lastQuestionId);
-    if (candidatePool.length === 0) {
-      candidatePool = available;
-    }
+    const notLast = ordered.filter(q => q.id !== this.lastQuestionId);
+    const candidatePool = notLast.length ? notLast : ordered;
 
-    const index = Math.floor(Math.random() * candidatePool.length);
-    const selected = candidatePool[index];
-    this.lastQuestionId = selected.id; // Correctly track the last picked question
+    // Random within the best tier, so it is not the same order every game
+    const best = candidatePool[0];
+    const bestSeen = seenIds.indexOf(best.id);
+    const tier = candidatePool.filter(q => seenIds.indexOf(q.id) === bestSeen);
+
+    const selected = tier[Math.floor(Math.random() * tier.length)];
+    this.lastQuestionId = selected.id;
 
     return selected;
   }
@@ -228,6 +251,7 @@ export class Game {
         targetBtn.classList.add('used');
         this.usedLetterButton.push(targetBtn);
 
+        playSound('typing');
         this.updateAnswerSlots();
       }
     }
@@ -244,6 +268,7 @@ export class Game {
         lastBtn.classList.remove('used');
       }
 
+      playSound('backspace');
       this.updateAnswerSlots();
     }
   }
@@ -260,12 +285,14 @@ export class Game {
     if (this.currentGuess.length <= 0) {
       playSound('blocked');
       this.showFeedback("empty");
+      this.shakeAnswerSlots();
       return;
     }
 
     if (this.currentGuess.length < this.currentQuestion.answer.length) {
       playSound('error');
       this.showFeedback("incomplete");
+      this.shakeAnswerSlots();
       return;
     }
 
@@ -275,7 +302,9 @@ export class Game {
       this.markQuestionAsSeen(this.currentQuestion.id);
       stopSound('timer');
       clearInterval(this.timerId);
+      this.syncWarningState();
       this.gameStatus = STATUS.WON;
+      playSound('reward');
       this.showModal("victory", () => {
         showScreen(this.ui.resultScreen);
         this.showResult(STATUS.WON);
@@ -283,8 +312,29 @@ export class Game {
     } else {
       playSound('error');
       this.showFeedback("incorrect");
+      this.shakeAnswerSlots();
       this.wrongGuesses++;
     }
+  }
+
+  shakeAnswerSlots() {
+    this.replayShake(this.ui.answerSlots);
+    this.replayShake(this.ui.gameScreen);
+  }
+
+  replayShake(element) {
+    if (!element) return;
+    element.classList.remove("is-shake");
+    // reading offsetWidth restarts the animation when a guess is rejected twice in a row
+    void element.offsetWidth;
+    element.classList.add("is-shake");
+
+    // the class must not outlive the shake: #game-screen is only display:none
+    // between games, so a stale class would replay the jolt on the next start
+    clearTimeout(element.shakeTimeoutId);
+    element.shakeTimeoutId = setTimeout(() => {
+      element.classList.remove("is-shake");
+    }, 340);
   }
 
   showFeedback(state) {
@@ -308,6 +358,8 @@ export class Game {
     const config = MODALS[type];
     if (!config) return;
 
+    const showTrivia = this.modalHasTrivia(config);
+
     if (config.sound) {
       playSound(config.sound);
     }
@@ -317,12 +369,18 @@ export class Game {
 
     if (config.buttonText) {
       this.ui.modalButton.onclick = () => {
+        playSound('click');
         this.hideModal();
         onDone?.();
       };
     }
 
     this.ui.modalOverlay.hidden = false;
+
+    if (showTrivia) {
+      // a beat after the panel lands, so it reads as the trivia revealing itself
+      setTimeout(() => playSound('trivia'), 220);
+    }
 
     if (config.hasCountdown) {
       this.startModalTimer(config.countdown, () => {
@@ -333,10 +391,15 @@ export class Game {
     }
   }
 
+  modalHasTrivia(config) {
+    const trivia = (this.currentQuestion?.trivia || "").trim();
+    return Boolean(config.hasTrivia && trivia);
+  }
+
   renderModal(config) {
     const { title, desc, hasCountdown, hasTrivia, buttonText } = config;
-    const trivia = (this.currentQuestion.trivia || "").trim();
-    const showTrivia = hasTrivia && Boolean(trivia);
+    const trivia = (this.currentQuestion?.trivia || "").trim();
+    const showTrivia = this.modalHasTrivia(config);
 
     this.ui.modalTitle.textContent = title;
     this.ui.modalMsg.textContent = desc;
@@ -402,6 +465,11 @@ export class Game {
 
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
+
+    // the result screen rises in over 180ms + 360ms; land the cue just after it
+    // settles so the sound belongs to the screen, not to the modal closing
+    const cue = state === STATUS.WON ? 'achievement' : 'finish';
+    setTimeout(() => playSound(cue), 320);
   }
 
   getStorageKey() {
@@ -416,26 +484,14 @@ export class Game {
   }
 
   markQuestionAsSeen(id) {
-    const seen = this.getSeenQuestionIds();
-    if (!seen.includes(id)) {
-      seen.push(id);
-      const key = this.getStorageKey();
-      localStorage.setItem(key, JSON.stringify(seen));
-    }
+    const key = this.getStorageKey();
+    const seen = this.getSeenQuestionIds().filter(seenId => seenId !== id);
+    seen.push(id);
+    localStorage.setItem(key, JSON.stringify(seen));
   }
 
   clearSeenQuestions() {
     const key = this.getStorageKey();
     localStorage.removeItem(key);
-  }
-
-  getRemainingCount() {
-    const pool = QUESTIONS_POOL[this.mode];
-    const seen = this.getSeenQuestionIds();
-    return pool.filter(q => !seen.includes(q.id)).length;
-  }
-
-  updateQuestionTracker() {
-    this.ui.questionNumber.textContent = this.getRemainingCount();
   }
 }

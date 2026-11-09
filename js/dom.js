@@ -33,8 +33,6 @@ export const uiElements = {
   resultAttempts: document.getElementById("result-attempts"),
   resultMistakes: document.getElementById("result-mistakes"),
   playAgainButton: document.getElementById("play-again-button"),
-  
-  questionNumber: document.getElementById("question-number"),
 };
 
 export function showScreen(screen) {

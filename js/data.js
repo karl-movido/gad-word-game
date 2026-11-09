@@ -43,7 +43,7 @@ export const MODALS = {
     title: "Time's up!",
     desc: "Get ready for the next round",
     hasCountdown: true,
-    sound: 'blocked',
+    sound: 'timeUp',
     countdown: 3,
     buttonText: null
   },
@@ -51,13 +51,13 @@ export const MODALS = {
     title: "Correct!",
     desc: "Great job! You guessed the word",
     hasCountdown: false,
-    sound: 'reward',
+    sound: 'achievement',
     hasTrivia: true,
     buttonText: "View results"
   },
   gameOver: {
     title: "Game Over",
-    sound: 'error',
+    sound: 'timeUp',
     desc: "You ran out of time. Better luck next time!",
     hasCountdown: false,
     buttonText: "View Results"
@@ -80,15 +80,22 @@ export const RESULTS = {
 };
 
 export const AUDIO_PATHS = {
-  click: 'assets/audio/select.ogg',
-  blocked: 'assets/audio/blocked.ogg',
-  error: 'assets/audio/invalid-drop.ogg',
-  close: 'assets/audio/close.ogg',
-  reward: 'assets/audio/reward.ogg',
-  typing: 'assets/audio/typing.ogg',
-  backspace: 'assets/audio/hover.ogg',
-  open: 'assets/audio/open.ogg',
-  timer: 'assets/audio/progress-step.ogg',
-  warning: 'assets/audio/warning.ogg',
-  stageUp: 'assets/audio/skip-next.ogg',
+  click:      'assets/audio/press.ogg',        
+  typing:     'assets/audio/typing.ogg',       
+  backspace:  'assets/audio/release.ogg',      
+  close:      'assets/audio/close.ogg',       
+  timer:      'assets/audio/progress-step.ogg',
+  warning:    'assets/audio/warning.ogg',      
+  blocked:    'assets/audio/blocked.ogg',      
+  error:      'assets/audio/error.ogg',       
+  stageUp:    'assets/audio/level-up.ogg',   
+  reward:     'assets/audio/success.ogg',    
+
+  // new keys
+  start:       'assets/audio/start.ogg',
+  achievement: 'assets/audio/achievement.ogg',
+  finish:      'assets/audio/complete.ogg',  
+  timeUp:      'assets/audio/stop.ogg',       
+  trivia:      'assets/audio/notification.ogg',
+  bonus:       'assets/audio/bonus.ogg',       
 };

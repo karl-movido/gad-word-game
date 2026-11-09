@@ -100,19 +100,25 @@ body {
   width: 100%;
   max-width: 800px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+/* One screen fits the viewport at the booth: no page scroll. The middle block
+   (pictures) is the only thing that shrinks, and only if the screen is really
+   short — see the #picture-container sizing below. */
 .screen {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: clamp(6px, 1.2vh, 16px);
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: clamp(8px, 2vh, 30px) 30px;
 }
 
 button {
@@ -129,6 +135,8 @@ button {
   border-radius: 0;
   box-shadow: 4px 4px 0 var(--outline);
   cursor: pointer;
+  transition: transform 60ms ease-out, box-shadow 60ms ease-out,
+    border-bottom-width 60ms ease-out, filter 60ms ease-out;
 }
 
 button:hover {
@@ -137,9 +145,14 @@ button:hover {
   filter: brightness(1.15);
 }
 
+/* pressed: sinks into the page — the 7px bottom edge collapses to 3px and the
+   block slides down by exactly that much, so nothing around it jumps */
 button:active {
-  transform: translate(4px, 4px);
-  box-shadow: 0 0 0 var(--outline);
+  transform: translate(2px, 4px);
+  border-bottom-width: 3px;
+  box-shadow: 0 0 0 var(--outline), inset 0 4px 0 rgba(0, 0, 0, 0.28);
+  filter: brightness(0.92);
+  transition-duration: 0ms;
 }
 
 button:focus-visible {
@@ -151,6 +164,66 @@ button:focus-visible {
 button:disabled {
   filter: grayscale(0.8) brightness(0.6);
   cursor: wait;
+}
+
+/* rejected: empty, incomplete or wrong answer */
+#answer-slots.is-shake {
+  animation: shake 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* the screen itself jolts on a rejected guess — the answer row and the whole
+   play area move together, so it reads as an impact rather than a wobble */
+#game-screen.is-shake {
+  animation: screen-shake 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+/* same beat, wider and with a little vertical travel: this one moves the screen */
+@keyframes screen-shake {
+
+  10%,
+  90% {
+    transform: translate(-3px, 1px);
+  }
+
+  20%,
+  80% {
+    transform: translate(5px, -2px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate(-8px, 2px);
+  }
+
+  40%,
+  60% {
+    transform: translate(8px, -1px);
+  }
 }
 
 
@@ -251,7 +324,7 @@ button:disabled {
 
 #game-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   width: 100%;
   max-width: 560px;
@@ -267,10 +340,6 @@ button:disabled {
   background: var(--panel-dark);
   border: 3px solid var(--outline);
   box-shadow: 3px 3px 0 var(--outline), inset 0 2px 0 rgba(255, 255, 255, 0.06);
-}
-
-#question-info:has(#question-number:empty) {
-  visibility: hidden;
 }
 
 #question-number,
@@ -301,13 +370,13 @@ button:disabled {
 }
 
 #picture-container {
+  flex: 0 1 auto;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  width: 100%;
-  max-width: 560px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(6px, 1.2vh, 14px);
+  width: min(100%, 560px, 40vh);
   margin: 0 auto;
-  padding: 10px;
+  padding: clamp(4px, 1vh, 10px);
   background: var(--panel);
   border: 3px solid var(--outline);
   box-shadow:
@@ -347,6 +416,12 @@ button:disabled {
   gap: 8px;
   min-height: 52px;
   margin-top: 8px;
+}
+
+/* rejected guess: the answer row jolts. Sits on the container, not the slots,
+   so it never fights the per-slot "pop" animation */
+#answer-slots.is-shake {
+  animation: shake 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 .answer-slot {
@@ -400,11 +475,11 @@ button:disabled {
 }
 
 .letter-btn {
-  width: 40px;
-  height: 42px;
+  width: clamp(32px, 5vh, 40px);
+  height: clamp(34px, 5.4vh, 42px);
   padding: 0;
   font-family: 'upheaval', 'pixOp8', monospace;
-  font-size: 24px;
+  font-size: clamp(20px, 3vh, 24px);
   color: var(--red-mid);
   background-color: var(--cream);
   border: 3px solid var(--cream-light);
@@ -423,8 +498,10 @@ button:disabled {
 }
 
 .letter-btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--outline);
+  transform: translate(3px, 4px);
+  border-bottom-width: 3px;
+  box-shadow: 0 0 0 var(--outline), inset 0 4px 0 rgba(0, 0, 0, 0.28);
+  transition-duration: 0ms;
 }
 
 
@@ -451,6 +528,10 @@ button:disabled {
   min-height: 80px;
   margin: 8px 0;
   text-align: center;
+  /* the two lines swap in and out constantly; keeping the block out of the
+     layout flow means a long feedback can never push the page taller */
+  position: relative;
+  z-index: 5;
 }
 
 #feedback-header {
@@ -784,5 +865,215 @@ button:disabled {
 @keyframes float {
   50% {
     transform: translateY(-8px);
+  }
+}
+
+/* ---- result screen entrance ---- */
+/* staggered so the card assembles itself instead of appearing all at once */
+.result-header,
+.prize-card,
+.result-stats,
+#play-again-button {
+  animation: rise-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.prize-card {
+  animation-delay: 60ms;
+}
+
+.result-stats {
+  animation-delay: 120ms;
+}
+
+#play-again-button {
+  animation-delay: 180ms;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* the reward banner keeps breathing for as long as the result is on screen */
+.prize-card {
+  animation: rise-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    prize-glow 2.4s ease-in-out 500ms infinite;
+}
+
+@keyframes prize-glow {
+  50% {
+    box-shadow:
+      6px 6px 0 var(--outline),
+      inset 0 5px 0 var(--orange-light),
+      inset 0 -5px 0 var(--orange-mid),
+      0 0 0 3px rgba(255, 210, 94, 0.35);
+    filter: brightness(1.06);
+  }
+}
+
+/* short viewports (booth laptop, projector at 720p, browser chrome) */
+@media (max-height: 780px) {
+  #game-title {
+    font-size: 44px;
+    letter-spacing: 4px;
+  }
+
+  #game-instructions {
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+
+  #feedback-message {
+    min-height: 64px;
+    margin: 4px 0;
+  }
+
+  #feedback-description {
+    font-size: 16px;
+  }
+
+  .result-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0;
+  }
+
+  .result-header h2 {
+    font-size: 22px;
+  }
+
+  .result-header p {
+    font-size: 17px;
+  }
+
+  .prize-card {
+    padding: 12px;
+  }
+
+  .prize-card h3 {
+    font-size: 30px;
+  }
+
+  .stat-item {
+    padding: 10px 12px;
+  }
+
+  .stat-item strong {
+    font-size: 28px;
+  }
+
+  #play-again-button {
+    padding: 10px;
+  }
+}
+
+/* extra-short: trim further so nothing is ever cut off */
+@media (max-height: 640px) {
+  #game-title {
+    font-size: 34px;
+  }
+
+  #game-instructions {
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+
+  #feedback-message {
+    min-height: 48px;
+  }
+
+  .modal {
+    padding-top: 38px;
+    padding-bottom: 18px;
+  }
+
+  #modal-trivia-text {
+    font-size: 18px;
+  }
+
+  .result-header p {
+    font-size: 15px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+}
+
+/* ---- ambient float ---- */
+/* Pixel-art idle: a small stepped bob that rests on the baseline for most of
+   the cycle. Transform-only, so it never costs a layout pass mid-game. */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-5px);
+  }
+
+  60% {
+    transform: translateY(-6px);
+  }
+}
+
+/* staggered so the banner and the buttons do not bob in lockstep */
+.result-icon {
+  animation: bob 2.8s steps(4, end) infinite;
+}
+
+.result-header h2 {
+  animation: bob 3.4s steps(4, end) 200ms infinite;
+}
+
+/* the reward line lifts a little more — it is the thing to look at */
+.prize-card {
+  animation: rise-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    bob 3s steps(4, end) 500ms infinite,
+    prize-glow 2.4s ease-in-out 500ms infinite;
+}
+
+#play-again-button {
+  animation: rise-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    bob 3.6s steps(4, end) 700ms infinite;
+}
+
+/* keep the press effect readable while it is bobbing */
+#play-again-button:active {
+  animation: none;
+}
+
+/* ---- mode selection on the start screen ---- */
+#start-normal-btn:not(:disabled) {
+  animation: pulse 1.2s steps(2) infinite, bob 3s steps(4, end) 300ms infinite;
+}
+
+#start-hard-btn:not(:disabled) {
+  animation: bob 3.2s steps(4, end) 900ms infinite;
+}
+
+.mode-btn:hover,
+.mode-btn:active {
+  animation: none !important;
+}
+
+/* ---- live timer ---- */
+/* only while time is left: the game toggles .is-critical from startTimer() and
+   drops it the moment the clock hits zero, so the bar stops breathing */
+#timer-progress-container.is-critical {
+  animation: bar-breathe 2s ease-in-out infinite;
+}
+
+@keyframes bar-breathe {
+  50% {
+    box-shadow: 3px 3px 0 var(--outline), 0 0 0 2px rgba(255, 122, 26, 0.35);
   }
 }
