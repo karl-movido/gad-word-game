@@ -24,9 +24,6 @@ export class Game {
     showScreen(this.ui.gameScreen);
     this.clearFeedback()
 
-    // the modal close sound is for an overlay that was actually open; on a fresh
-    // start it would double up with the mode button's click
-    playSound('start');
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
     this.buildLetterBank();
@@ -58,7 +55,6 @@ export class Game {
   startTimer() {
     clearInterval(this.timerId);
     this.updateTimerDisplay();
-    this.syncWarningState();
 
     this.timerId = setInterval(() => {
       this.remainingTime--;
@@ -71,7 +67,6 @@ export class Game {
       if (this.remainingTime <= 0) {
         clearInterval(this.timerId);
         const config = MODE_CONFIG[this.mode];
-        this.syncWarningState();
 
         if (this.currentStage >= config.numberOfStages) {
           this.gameStatus = STATUS.GAME_OVER;
@@ -90,13 +85,6 @@ export class Game {
     }, 1000);
   }
 
-  /* the timer bar breathes in CSS while time is left; drop the class the moment
-     it runs out so it stops dead instead of glowing on the game-over screen */
-  syncWarningState() {
-    const active = this.remainingTime > 0 && this.remainingTime <= 3;
-    this.ui.timerBar.classList.toggle("is-critical", active);
-  }
-
   nextStage() {
     this.currentStage += 1;
     this.gameStatus = STATUS.PLAYING;
@@ -110,7 +98,6 @@ export class Game {
 
     if (this.mode === "progressive") {
       this.shuffleLetterBank();
-      playSound('bonus');
     }
   }
 
@@ -123,13 +110,6 @@ export class Game {
     const currentPool = QUESTIONS_POOL[this.mode];
     const seenIds = this.getSeenQuestionIds();
 
-    // Answered questions stay in play (the booth has more players than
-    // questions), they just must not come back too soon. Each pick prefers the
-    // least recently answered question, so the whole pool cycles before
-    // anything repeats:
-    //   1. never-answered questions
-    //   2. then the oldest answers, oldest first
-    // The last question played is never picked again immediately.
     const ordered = [...currentPool].sort((a, b) => {
       const aSeen = seenIds.indexOf(a.id);
       const bSeen = seenIds.indexOf(b.id);
@@ -143,7 +123,6 @@ export class Game {
     const notLast = ordered.filter(q => q.id !== this.lastQuestionId);
     const candidatePool = notLast.length ? notLast : ordered;
 
-    // Random within the best tier, so it is not the same order every game
     const best = candidatePool[0];
     const bestSeen = seenIds.indexOf(best.id);
     const tier = candidatePool.filter(q => seenIds.indexOf(q.id) === bestSeen);
@@ -251,7 +230,6 @@ export class Game {
         targetBtn.classList.add('used');
         this.usedLetterButton.push(targetBtn);
 
-        playSound('typing');
         this.updateAnswerSlots();
       }
     }
@@ -268,7 +246,6 @@ export class Game {
         lastBtn.classList.remove('used');
       }
 
-      playSound('backspace');
       this.updateAnswerSlots();
     }
   }
@@ -302,9 +279,7 @@ export class Game {
       this.markQuestionAsSeen(this.currentQuestion.id);
       stopSound('timer');
       clearInterval(this.timerId);
-      this.syncWarningState();
       this.gameStatus = STATUS.WON;
-      playSound('reward');
       this.showModal("victory", () => {
         showScreen(this.ui.resultScreen);
         this.showResult(STATUS.WON);
@@ -318,23 +293,10 @@ export class Game {
   }
 
   shakeAnswerSlots() {
-    this.replayShake(this.ui.answerSlots);
-    this.replayShake(this.ui.gameScreen);
-  }
-
-  replayShake(element) {
-    if (!element) return;
-    element.classList.remove("is-shake");
-    // reading offsetWidth restarts the animation when a guess is rejected twice in a row
-    void element.offsetWidth;
-    element.classList.add("is-shake");
-
-    // the class must not outlive the shake: #game-screen is only display:none
-    // between games, so a stale class would replay the jolt on the next start
-    clearTimeout(element.shakeTimeoutId);
-    element.shakeTimeoutId = setTimeout(() => {
-      element.classList.remove("is-shake");
-    }, 340);
+    const slots = this.ui.answerSlots;
+    slots.classList.remove("is-shake");
+    void slots.offsetWidth;
+    slots.classList.add("is-shake");
   }
 
   showFeedback(state) {
@@ -358,8 +320,6 @@ export class Game {
     const config = MODALS[type];
     if (!config) return;
 
-    const showTrivia = this.modalHasTrivia(config);
-
     if (config.sound) {
       playSound(config.sound);
     }
@@ -369,18 +329,12 @@ export class Game {
 
     if (config.buttonText) {
       this.ui.modalButton.onclick = () => {
-        playSound('click');
         this.hideModal();
         onDone?.();
       };
     }
 
     this.ui.modalOverlay.hidden = false;
-
-    if (showTrivia) {
-      // a beat after the panel lands, so it reads as the trivia revealing itself
-      setTimeout(() => playSound('trivia'), 220);
-    }
 
     if (config.hasCountdown) {
       this.startModalTimer(config.countdown, () => {
@@ -391,15 +345,10 @@ export class Game {
     }
   }
 
-  modalHasTrivia(config) {
-    const trivia = (this.currentQuestion?.trivia || "").trim();
-    return Boolean(config.hasTrivia && trivia);
-  }
-
   renderModal(config) {
     const { title, desc, hasCountdown, hasTrivia, buttonText } = config;
-    const trivia = (this.currentQuestion?.trivia || "").trim();
-    const showTrivia = this.modalHasTrivia(config);
+    const trivia = (this.currentQuestion.trivia || "").trim();
+    const showTrivia = hasTrivia && Boolean(trivia);
 
     this.ui.modalTitle.textContent = title;
     this.ui.modalMsg.textContent = desc;
@@ -465,11 +414,6 @@ export class Game {
 
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
-
-    // the result screen rises in over 180ms + 360ms; land the cue just after it
-    // settles so the sound belongs to the screen, not to the modal closing
-    const cue = state === STATUS.WON ? 'achievement' : 'finish';
-    setTimeout(() => playSound(cue), 320);
   }
 
   getStorageKey() {
