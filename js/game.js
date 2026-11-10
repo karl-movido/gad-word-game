@@ -24,8 +24,6 @@ export class Game {
     showScreen(this.ui.gameScreen);
     this.clearFeedback()
 
-    // the modal close sound is for an overlay that was actually open; on a fresh
-    // start it would double up with the mode button's click
     playSound('start');
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
@@ -90,8 +88,6 @@ export class Game {
     }, 1000);
   }
 
-  /* the timer bar breathes in CSS while time is left; drop the class the moment
-     it runs out so it stops dead instead of glowing on the game-over screen */
   syncWarningState() {
     const active = this.remainingTime > 0 && this.remainingTime <= 3;
     this.ui.timerBar.classList.toggle("is-critical", active);
@@ -317,12 +313,9 @@ export class Game {
   replayShake(element) {
     if (!element) return;
     element.classList.remove("is-shake");
-    // reading offsetWidth restarts the animation when a guess is rejected twice in a row
     void element.offsetWidth;
     element.classList.add("is-shake");
 
-    // the class must not outlive the shake: #game-screen is only display:none
-    // between games, so a stale class would replay the jolt on the next start
     clearTimeout(element.shakeTimeoutId);
     element.shakeTimeoutId = setTimeout(() => {
       element.classList.remove("is-shake");
@@ -370,7 +363,6 @@ export class Game {
     this.ui.modalOverlay.hidden = false;
 
     if (showTrivia) {
-      // a beat after the panel lands, so it reads as the trivia revealing itself
       setTimeout(() => playSound('trivia'), 220);
     }
 
@@ -458,8 +450,6 @@ export class Game {
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
 
-    // the result screen rises in over 180ms + 360ms; land the cue just after it
-    // settles so the sound belongs to the screen, not to the modal closing
     const cue = state === STATUS.WON ? 'achievement' : 'finish';
     setTimeout(() => playSound(cue), 320);
   }

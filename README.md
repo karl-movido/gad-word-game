@@ -3,6 +3,8 @@
 A 4 Pics 1 Word-inspired game developed for our
 Gender and Development Day booth.
 
+**Play it here:** https://karl-movido.github.io/gad-word-game/
+
 ## Tech Stack
 - HTML5
 - CSS3
