@@ -103,6 +103,7 @@ body {
   min-height: 100dvh;
   margin: 0 auto;
   display: flex;
+  position: relative;
   flex-direction: column;
   justify-content: center;
 }
@@ -1075,5 +1076,31 @@ button:disabled {
 @keyframes bar-breathe {
   50% {
     box-shadow: 3px 3px 0 var(--outline), 0 0 0 2px rgba(255, 122, 26, 0.35);
+  }
+}
+
+/* red screen flash on a wrong answer. The class goes on <body>, so this targets
+   body — a #game-app.error-flash rule would never match anything. It has to
+   paint with ::before (not ::after) because body::after is already the CRT
+   scanline/vignette overlay, and only one rule per pseudo-element can win. */
+body.error-flash::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  background: rgba(232, 50, 63, 0.35);
+  animation: error-flash 350ms steps(2);
+}
+
+@keyframes error-flash {
+
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
   }
 }

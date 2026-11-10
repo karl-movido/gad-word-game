@@ -1,5 +1,13 @@
 import { EASY_QUESTIONS, HARD_QUESTIONS, QUESTIONS_POOL } from "./questions.js";
-import { STATUS, MODES, MODE_CONFIG, FEEDBACKS, MODALS, RESULTS, LOSS_PRIZE } from "./data.js";
+import {
+  STATUS,
+  MODES,
+  MODE_CONFIG,
+  FEEDBACKS,
+  MODALS,
+  RESULTS,
+  LOSS_PRIZE,
+} from "./data.js";
 import { showScreen } from "./dom.js";
 import { playSound, stopSound } from "./audio.js";
 
@@ -15,16 +23,15 @@ export class Game {
   }
 
   start(mode = MODES.NORMAL) {
-
     this.mode = mode;
     this.reset();
     this.gameStatus = STATUS.PLAYING;
 
     this.hideModal();
     showScreen(this.ui.gameScreen);
-    this.clearFeedback()
+    this.clearFeedback();
 
-    playSound('start');
+    playSound("start");
     this.currentQuestion = this.pickQuestion();
     this.buildAnswerSlots();
     this.buildLetterBank();
@@ -63,7 +70,7 @@ export class Game {
       this.updateTimerDisplay();
 
       if (this.remainingTime <= 3 && this.remainingTime > 0) {
-        playSound('warning');
+        playSound("warning");
       }
 
       if (this.remainingTime <= 0) {
@@ -96,7 +103,7 @@ export class Game {
   nextStage() {
     this.currentStage += 1;
     this.gameStatus = STATUS.PLAYING;
-    playSound('stageUp');
+    playSound("stageUp");
     this.updatePictures();
 
     const config = MODE_CONFIG[this.mode];
@@ -106,7 +113,7 @@ export class Game {
 
     if (this.mode === "progressive") {
       this.shuffleLetterBank();
-      playSound('bonus');
+      playSound("bonus");
     }
   }
 
@@ -129,12 +136,14 @@ export class Game {
       return aSeen - bSeen;
     });
 
-    const notLast = ordered.filter(q => q.id !== this.lastQuestionId);
+    const notLast = ordered.filter((q) => q.id !== this.lastQuestionId);
     const candidatePool = notLast.length ? notLast : ordered;
 
     const best = candidatePool[0];
     const bestSeen = seenIds.indexOf(best.id);
-    const tier = candidatePool.filter(q => seenIds.indexOf(q.id) === bestSeen);
+    const tier = candidatePool.filter(
+      (q) => seenIds.indexOf(q.id) === bestSeen,
+    );
 
     const selected = tier[Math.floor(Math.random() * tier.length)];
     this.lastQuestionId = selected.id;
@@ -225,21 +234,25 @@ export class Game {
       [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
     }
 
-    buttons.forEach(btn => this.ui.letterBank.appendChild(btn));
+    buttons.forEach((btn) => this.ui.letterBank.appendChild(btn));
   }
 
   handleLetterInput(letter, btnElement = null) {
     if (this.gameStatus !== STATUS.PLAYING) return;
     if (this.currentGuess.length < this.currentQuestion.answer.length) {
-      const targetBtn = btnElement || Array.from(this.ui.letterBank.children).find(btn =>
-        btn.dataset.letter === letter && !btn.classList.contains("used"));
+      const targetBtn =
+        btnElement ||
+        Array.from(this.ui.letterBank.children).find(
+          (btn) =>
+            btn.dataset.letter === letter && !btn.classList.contains("used"),
+        );
 
       if (targetBtn) {
         this.currentGuess += letter;
-        targetBtn.classList.add('used');
+        targetBtn.classList.add("used");
         this.usedLetterButton.push(targetBtn);
 
-        playSound('typing');
+        playSound("typing");
         this.updateAnswerSlots();
       }
     }
@@ -253,10 +266,10 @@ export class Game {
 
       const lastBtn = this.usedLetterButton.pop();
       if (lastBtn) {
-        lastBtn.classList.remove('used');
+        lastBtn.classList.remove("used");
       }
 
-      playSound('backspace');
+      playSound("backspace");
       this.updateAnswerSlots();
     }
   }
@@ -271,14 +284,14 @@ export class Game {
     if (this.gameStatus !== STATUS.PLAYING) return;
 
     if (this.currentGuess.length <= 0) {
-      playSound('blocked');
+      playSound("blocked");
       this.showFeedback("empty");
       this.shakeAnswerSlots();
       return;
     }
 
     if (this.currentGuess.length < this.currentQuestion.answer.length) {
-      playSound('error');
+      playSound("error");
       this.showFeedback("incomplete");
       this.shakeAnswerSlots();
       return;
@@ -288,19 +301,20 @@ export class Game {
 
     if (this.currentGuess === this.currentQuestion.answer) {
       this.markQuestionAsSeen(this.currentQuestion.id);
-      stopSound('timer');
+      stopSound("timer");
       clearInterval(this.timerId);
       this.syncWarningState();
       this.gameStatus = STATUS.WON;
-      playSound('reward');
+      playSound("reward");
       this.showModal("victory", () => {
         showScreen(this.ui.resultScreen);
         this.showResult(STATUS.WON);
       });
     } else {
-      playSound('error');
+      playSound("error");
       this.showFeedback("incorrect");
       this.shakeAnswerSlots();
+      this.triggerErrorFlash();
       this.wrongGuesses++;
     }
   }
@@ -354,7 +368,7 @@ export class Game {
 
     if (config.buttonText) {
       this.ui.modalButton.onclick = () => {
-        playSound('click');
+        playSound("click");
         this.hideModal();
         onDone?.();
       };
@@ -363,12 +377,12 @@ export class Game {
     this.ui.modalOverlay.hidden = false;
 
     if (showTrivia) {
-      setTimeout(() => playSound('trivia'), 220);
+      setTimeout(() => playSound("trivia"), 220);
     }
 
     if (config.hasCountdown) {
       this.startModalTimer(config.countdown, () => {
-        playSound('close');
+        playSound("close");
         this.hideModal();
         onDone?.();
       });
@@ -406,7 +420,7 @@ export class Game {
       seconds--;
 
       if (seconds > 0) {
-        playSound('timer');
+        playSound("timer");
       }
       this.ui.modalCountdown.textContent = seconds;
       if (seconds <= 0) {
@@ -418,7 +432,7 @@ export class Game {
 
   hideModal() {
     if (!this.ui.modalOverlay.hidden) {
-      playSound('close');
+      playSound("close");
     }
 
     this.ui.modalOverlay.hidden = true;
@@ -443,14 +457,15 @@ export class Game {
     this.ui.resultPrize.hidden = !prize;
     this.ui.prizeLabel.textContent = result.prizeLabel;
     this.ui.resultPrize.textContent = prize || "";
-    this.ui.resultStage.textContent = this.mode === MODES.NORMAL
-      ? "Normal Mode"
-      : `Stage ${this.currentStage} of ${MODE_CONFIG[MODES.PROGRESSIVE].numberOfStages}`;
+    this.ui.resultStage.textContent =
+      this.mode === MODES.NORMAL
+        ? "Normal Mode"
+        : `Stage ${this.currentStage} of ${MODE_CONFIG[MODES.PROGRESSIVE].numberOfStages}`;
 
     this.ui.resultAttempts.textContent = this.totalAttempts;
     this.ui.resultMistakes.textContent = this.wrongGuesses;
 
-    const cue = state === STATUS.WON ? 'achievement' : 'finish';
+    const cue = state === STATUS.WON ? "achievement" : "finish";
     setTimeout(() => playSound(cue), 320);
   }
 
@@ -467,7 +482,7 @@ export class Game {
 
   markQuestionAsSeen(id) {
     const key = this.getStorageKey();
-    const seen = this.getSeenQuestionIds().filter(seenId => seenId !== id);
+    const seen = this.getSeenQuestionIds().filter((seenId) => seenId !== id);
     seen.push(id);
     localStorage.setItem(key, JSON.stringify(seen));
   }
@@ -475,5 +490,18 @@ export class Game {
   clearSeenQuestions() {
     const key = this.getStorageKey();
     localStorage.removeItem(key);
+  }
+
+  triggerErrorFlash() {
+    const el = document.body;
+    el.classList.remove("error-flash");
+    void el.offsetWidth;
+    el.classList.add("error-flash");
+
+    // matches the 350ms animation so the class never outlives the flash
+    clearTimeout(this.flashTimeoutId);
+    this.flashTimeoutId = setTimeout(() => {
+      el.classList.remove("error-flash");
+    }, 350);
   }
 }
