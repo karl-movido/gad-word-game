@@ -1104,3 +1104,23 @@ body.error-flash::before {
     opacity: 1;
   }
 }
+
+/* music toggle: deliberately small and quiet, it is a setting not a game action */
+.music-toggle {
+  margin-top: 4px;
+  padding: 8px 14px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+  background: var(--panel-dark);
+  border: 3px solid var(--outline);
+  border-bottom-width: 5px;
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.music-toggle:hover {
+  color: var(--cream);
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 var(--outline);
+}

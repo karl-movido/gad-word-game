@@ -4,13 +4,14 @@ import { STATUS, MODES, AUDIO_PATHS } from "./data.js";
 import { loadAllAssets } from "./assetLoader.js";
 import { ALL_QUESTIONS_IMAGES } from "./questions.js";
 import { setAudioAssets, playSound } from "./audio.js";
+import { startMusic, hasMusic, toggleMusic, isMusicMuted } from "./music.js";
 
 const ASSET_MANIFEST = {
   images: ALL_QUESTIONS_IMAGES,
   audio: Object.values(AUDIO_PATHS)
 };
 2
-const { startNormalBtn, startHardBtn, submitButton, playAgainButton } = uiElements;
+const { startNormalBtn, startHardBtn, submitButton, playAgainButton, musicToggle } = uiElements;
 
 let game = null;
 
@@ -33,11 +34,13 @@ async function initApp() {
 
 startNormalBtn.addEventListener("click", () => {
   playSound('click');
+  startMusic();
   game.start(MODES.NORMAL);
 });
 
 startHardBtn.addEventListener("click", () => {
   playSound('click');
+  startMusic();
   game.start(MODES.PROGRESSIVE);
 });
 
@@ -50,6 +53,16 @@ playAgainButton.addEventListener("click", () => {
   playSound('click');
   showScreen(uiElements.startScreen);
 });
+
+// only shown when js/music.js actually lists tracks
+if (musicToggle && hasMusic()) {
+  musicToggle.hidden = false;
+  musicToggle.textContent = isMusicMuted() ? "Music: Off" : "Music: On";
+  musicToggle.addEventListener("click", () => {
+    playSound('click');
+    musicToggle.textContent = toggleMusic() ? "Music: Off" : "Music: On";
+  });
+}
 
 window.addEventListener("keydown", handleKeyPress);
 
